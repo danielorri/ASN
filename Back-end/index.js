@@ -4,6 +4,7 @@ const puppeteer = require("puppeteer");
 const login = require("./functions/login"); //Import Login function
 const startASN = require("./functions/startASN"); //Import startASN function
 const pickParts = require("./functions/pickParts");
+const enterQuantity = require("./functions/enterQuantity");
 
 const app = express();
 
@@ -43,10 +44,12 @@ app.post("/buildASN", async(req, res)=>{
 
     //Start ASN
     await startASN(page,parts[0], shipping);
-    console.log(parts.length);
     if(parts.length > 1){
         await pickParts(page, parts.slice(1), shipping)
     }
+
+    //Enter Quantities
+    enterQuantity(page, parts);
 
      // await browser.close();
 });

@@ -53,6 +53,7 @@ const startASN = async (page, initialPart, shipping) => {
               if (clickableElement) {
                 await clickableElement.click();
                 console.log('Clicked the row');
+                return true;
               }
             }
           } else {
@@ -60,6 +61,7 @@ const startASN = async (page, initialPart, shipping) => {
             if (clickableElement) {
               await clickableElement.click();
               console.log('Clicked the row');
+              return true;
             }
           }
         } else {
@@ -77,8 +79,12 @@ const startASN = async (page, initialPart, shipping) => {
     try {
       await page.waitForNavigation({ waitUntil: 'domcontentloaded' }); // Wait for navigation
       await page.waitForSelector('tr.tableRow1');
-      await processRows();
-      break; // Break out of the loop on successful row processing
+      const res = await processRows();
+        if(res === true){
+            break; // Break out of the loop on successful row processing
+        } else {
+            throw new Error("Part not found");
+        }// Break out of the loop on successful row processing
     } catch (error) {
       console.log(error);
       const today = new Date();

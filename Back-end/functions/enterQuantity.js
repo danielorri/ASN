@@ -1,27 +1,22 @@
 const enterQuantity = async(page, parts) =>{
 try {
        // Wait for the input element to appear on the page
-       await page.waitForSelector(`input.w-txt`);
+       await page.waitForSelector('input.w-txt');
        const elements = await page.$$(`input.w-txt`);
 
-       if (elements.length > 0) {
-         for (const element of elements) {
-           const value = await page.evaluate(el => el.value, element);
-           
-           // Check if the value is a positive number with commas or dots
-           if (/^[0-9]+([,.][0-9]+)?$/.test(value)) {
-             await page.evaluate(el => {
-               // Replace the value with 1000
-               el.value = '1000';
-             }, element);
-             
-             // Log the modified value
-             console.log('Value (Modified): 1000');
-           }
-         }
-       } else {
-         console.log('No elements with class "w-txt" found.');
-       }
+      // Log the values of all the input elements
+      for (const element of elements) {
+        const value = await element.evaluate((el) => el.value.trim());
+        console.log(value);
+        // Check if the value is "2,000.000" and change it to "10,000"
+        if (value === '2,000.000') {
+          console.log("ok")
+          await element.click({ clickCount: 3 }); // Triple-click to select all text
+          await element.type('', {delay: 100});
+          await page.waitForTimeout(100);
+          await element.type('10,000', {delay: 2000});
+        }
+      }
 
 } catch (error) {
     console.log("Not found");

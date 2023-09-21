@@ -75,7 +75,7 @@ const startASN = async (page, initialPart, shipping) => {
 
   let retries2 = 0;
 
-  while (retries2 < maxRetries) {
+  while (retries2 < 4) {
     try {
       await page.waitForNavigation({ waitUntil: 'domcontentloaded' }); // Wait for navigation
       await page.waitForSelector('tr.tableRow1');
@@ -88,8 +88,8 @@ const startASN = async (page, initialPart, shipping) => {
     } catch (error) {
       console.log(error);
       const today = new Date();
-      const startDate = new Date(today.getFullYear(), today.getMonth() + retries2 - 1, 0);
-      const endDate = new Date(today.getFullYear(), today.getMonth() + retries2, 0);
+      const startDate = new Date(today.getFullYear(), today.getMonth() + retries2, 0);
+      const endDate = new Date(today.getFullYear(), today.getMonth() + retries2 + 1, 0);
       await page.waitForTimeout(2000);
       await page.waitForSelector('input#DF_bovso');
       await page.click('input#DF_bovso', { clickCount: 3 });

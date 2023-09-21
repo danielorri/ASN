@@ -51,7 +51,7 @@ app.post("/buildASN", async(req, res)=>{
     //Enter Quantities
     enterQuantity(page, parts);
 
-     // await browser.close();
+     await browser.close();
 });
 
 app.listen(3010, () => {

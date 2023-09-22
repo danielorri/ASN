@@ -48,10 +48,11 @@ app.post("/buildASN", async(req, res)=>{
         await pickParts(page, parts.slice(1), shipping)
     }
 
+    console.log("Stop 1");
     //Enter Quantities
-    enterQuantity(page, parts);
+    await enterQuantity(page, parts);
 
-     await browser.close();
+    //  await browser.close();
 });
 
 app.listen(3010, () => {

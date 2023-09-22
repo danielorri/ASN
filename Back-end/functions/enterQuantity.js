@@ -1,12 +1,13 @@
 const enterQuantity = async (page, parts) => {
   try {
-    await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
+    await page.waitForNavigation({ waitUntil: 'networkidle0' }); // or 'networkidle2'
 
     let arri = 0;
     let nextPageButtonExists = true;
-
+    console.log("quantities being enetered");
     while (nextPageButtonExists) {
       // Wait for the input element to appear on the page
+      console.log("quantities being enetered 2");
       await page.waitForSelector('input.w-txt');
       const elements = await page.$$(`input.w-txt`);
 

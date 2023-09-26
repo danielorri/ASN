@@ -48,6 +48,13 @@ const enterQuantity = async(page, parts) =>{
 
      // Click the button
      await page.click('button#_uz6b3');
+
+     await page.waitForTimeout(5000); 
+     
+     //Wait for the button Pack_items
+     await page.waitForSelector('button#_ffzbzc');
+
+     await page.click('button#_ffzbzc');
      
 
   } catch (error) {

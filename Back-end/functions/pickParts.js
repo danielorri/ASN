@@ -83,8 +83,8 @@ const pickParts = async(page, parts, shipping) =>{
         } catch (error) {
             console.log(error);
             const today = new Date();
-            const startDate = new Date(today.getFullYear(), today.getMonth() + retries2, 0);
-            const endDate = new Date(today.getFullYear(), today.getMonth() + retries2 + 1, 0);
+            const startDate = new Date(today.getFullYear(), today.getMonth() + retries2 + 1, 0);
+            const endDate = new Date(today.getFullYear(), today.getMonth() + retries2 + 2, 0);
             await page.waitForTimeout(2000);
             await page.waitForSelector('input#DF_l4uaq');
             await page.click('input#DF_l4uaq', { clickCount: 3 });
@@ -114,8 +114,10 @@ const pickParts = async(page, parts, shipping) =>{
       }
 
     try {
+        await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
         await page.waitForSelector("button#_x0hhpb");
         await page.click("button#_x0hhpb"); 
+
         await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
         await page.waitForSelector("button#_uz6b3");
         await page.click("button#_uz6b3");

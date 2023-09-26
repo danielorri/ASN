@@ -5,6 +5,7 @@ const login = require("./functions/login"); //Import Login function
 const startASN = require("./functions/startASN"); //Import startASN function
 const pickParts = require("./functions/pickParts");
 const enterQuantity = require("./functions/enterQuantity");
+const repackItems = require("./functions/reapackItems");
 
 const app = express();
 
@@ -47,10 +48,10 @@ app.post("/buildASN", async(req, res)=>{
     if(parts.length > 1){
         await pickParts(page, parts.slice(1), shipping)
     }
-
-    console.log("Stop 1");
     //Enter Quantities
     await enterQuantity(page, parts);
+
+    await repackItems(page, parts.slice(0, -1));
 
     //  await browser.close();
 });

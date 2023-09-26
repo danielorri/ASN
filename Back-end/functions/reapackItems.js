@@ -1,8 +1,9 @@
 const repackItems = async(page, parts) =>{
    try {
     
-    await page.waitForNavigation({ waitUntil: 'domcontentloaded' }); // Wait for navigation
-     // Select all dropdown elements
+    await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
+    
+    await page.waitForSelector('label.ui-dropdown-label');
      const dropdowns = await page.$$('label.ui-dropdown-label');
 
      // Loop through each dropdown and set the selected value based on parts[i].mixedOrMaster
@@ -13,16 +14,27 @@ const repackItems = async(page, parts) =>{
          // Click on the dropdown to open it
          await dropdown.click();
 
-         // Find the option element based on the 'mixedOrMaster' field
-         const optionText = part.mixedOrMaster === 'Mixed'
-             ? 'MIXED PALLET MIX / BOX'
-             : 'MASTER PALLET PLT / BOX';
+         await page.waitForSelector('ul.ui-dropdown-items li');
+         const options = await page.$$('ul.ui-dropdown-items li'); // Select all options within the dropdown
+        let optionClicked = false;
 
-         const optionSelector = `ul.ui-dropdown-items span:contains("${optionText}")`;
+        for (const option of options) {
+            const optionText = await option.evaluate((el) => el.textContent.toLowerCase());
 
-         // Wait for the option to appear and click it
-         await page.waitForSelector(optionSelector);
-         await page.click(optionSelector);
+            if (optionText.includes(part.mixedOrMaster.toLowerCase())) {
+                await option.click();
+                optionClicked = true;
+                break; // Exit the loop after clicking the option
+            }
+        }
+
+        if (!optionClicked) {
+            console.log(`Option not found for ${part.mixedOrMaster}`);
+            // Handle the case where the option was not found
+        }
+
+        // Rest of your code...
+
 
          // You can add additional logic here if needed, e.g., handling quantity and repackedQuantity fields
 
@@ -32,12 +44,19 @@ const repackItems = async(page, parts) =>{
 
      await page.waitForSelector('input.ui-editable-column.input.ng-untouched.ng-pristine.ng-valid');
      const quantityFields = await page.$$('input.ui-editable-column.input.ng-untouched.ng-pristine.ng-valid');
-
+     const filteredfields = [];
+     for(const field of quantityFields ){
+        const value = await field.evaluate((el) => el.value.trim());
+        if(value === '10' || value === '5'){
+            filteredfields.push(field);
+        }
+    }
+    let e = 0;
      for(let i = 0; i < (parts.length * 2); i += 2){
-        const firstQ = parts[i].quantity;
-        const secondQ = parts[i + 1].repackedQuantity;
-        const firstInput = quantityFields[i];
-        const secondInput = quantityFields[i+1]
+        const firstQ = parts[e].quantity;
+        const secondQ = parts[e].repackedQuantity;
+        const firstInput = filteredfields[i];
+        const secondInput = filteredfields[i+1]
 
         // Clear the input field and type the appropriate value
         await firstInput.click({ clickCount: 3 }); // Select all text in the input field
@@ -48,10 +67,36 @@ const repackItems = async(page, parts) =>{
         await secondInput.click({ clickCount: 3 }); // Select all text in the input field
         await secondInput.press('Backspace'); // Clear the input field
         await secondInput.type(secondQ);
+        
+        e++;
      }
 
      await page.waitForSelector("#_lnmufb > table > tbody > tr > td > app-scc-shipnotice-packaging > div > app-scc-shipnotice-packaging-view > div > div > pe-steps > div > div.ui-lg-12.ui-md-12.ui-sm-12 > div:nth-child(1) > div > table > tbody > tr > td:nth-child(3) > button.nextButton.button-shape.button-focused");
      await page.click('#_lnmufb > table > tbody > tr > td > app-scc-shipnotice-packaging > div > app-scc-shipnotice-packaging-view > div > div > pe-steps > div > div.ui-lg-12.ui-md-12.ui-sm-12 > div:nth-child(1) > div > table > tbody > tr > td:nth-child(3) > button.nextButton.button-shape.button-focused');
+     // handle customized
+     
+    
+     await page.waitForSelector("#_lnmufb > table > tbody > tr > td > app-scc-shipnotice-packaging > div > app-scc-shipnotice-packaging-view > div > div > pe-steps > div > div.ui-lg-12.ui-md-12.ui-sm-12 > div:nth-child(1) > div > table > tbody > tr > td:nth-child(3) > button.nextButton.button-shape.button-focused");
+     await page.click('#_lnmufb > table > tbody > tr > td > app-scc-shipnotice-packaging > div > app-scc-shipnotice-packaging-view > div > div > pe-steps > div > div.ui-lg-12.ui-md-12.ui-sm-12 > div:nth-child(1) > div > table > tbody > tr > td:nth-child(3) > button.nextButton.button-shape.button-focused');
+
+     await page.waitForTimeout(2000); 
+     await page.waitForSelector('#_lnmufb > table > tbody > tr > td > app-scc-shipnotice-packaging > div > app-scc-shipnotice-packaging-view > div > div > pe-steps > pe-step > div > print-labels-step > review-treetable > div > print-pdf-button > span');
+     await page.click('#_lnmufb > table > tbody > tr > td > app-scc-shipnotice-packaging > div > app-scc-shipnotice-packaging-view > div > div > pe-steps > pe-step > div > print-labels-step > review-treetable > div > print-pdf-button > span');
+     await page.waitForTimeout(5000); 
+     
+     await page.click('#_lnmufb > table > tbody > tr > td > app-scc-shipnotice-packaging > div > app-scc-shipnotice-packaging-view > div > div > pe-steps > div > div.ui-lg-12.ui-md-12.ui-sm-12 > div:nth-child(1) > div > table > tbody > tr > td:nth-child(3) > button.reviewButton.button-shape.button-focused');
+
+     console.log("now");
+     await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
+     await page.waitForSelector('button#_t1zf');
+     await page.click('button#_t1zf');
+     await page.waitForTimeout(2000);
+     await page.waitForSelector('button#_ogx3hc');
+     await page.click('button#_ogx3hc');
+
+     await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
+     await page.waitForSelector('a#_lzc3hd');
+     await page.click('a#_lzc3hd');
 
    } catch (error) {
     console.log(error);

@@ -20,7 +20,12 @@ const Dashboard = ()=>{
 
     const handleShippingChange = (e) =>{
         const { name, value }= e.target;
-        setShipping({ ...shipping, [name]: value});
+        const generatedPackingSLipID = value.replace(/\//g, ''); 
+        if(name === 'ShippingDate'){
+          setShipping({ ...shipping, [name]: value, PackingSLipID: generatedPackingSLipID});
+        } else{
+          setShipping({ ...shipping, [name]: value});
+        }
     }
 
     //Part

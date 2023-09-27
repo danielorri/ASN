@@ -53,7 +53,7 @@ app.post("/buildASN", async(req, res)=>{
 
     await repackItems(page, parts.slice(0, -1));
 
-     await browser.close();
+    //  await browser.close();
 });
 
 app.listen(3010, () => {

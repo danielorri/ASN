@@ -86,7 +86,7 @@ const repackItems = async(page, parts) =>{
      
      await page.click('#_lnmufb > table > tbody > tr > td > app-scc-shipnotice-packaging > div > app-scc-shipnotice-packaging-view > div > div > pe-steps > div > div.ui-lg-12.ui-md-12.ui-sm-12 > div:nth-child(1) > div > table > tbody > tr > td:nth-child(3) > button.reviewButton.button-shape.button-focused');
 
-     console.log("now");
+    
      await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
      await page.waitForSelector('button#_t1zf');
      await page.click('button#_t1zf');

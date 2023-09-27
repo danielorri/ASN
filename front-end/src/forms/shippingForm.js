@@ -1,37 +1,60 @@
+import Dropdown from "../components/carrierDropdown";
+
 const ShippingForm =(props)=>{
     const {PackingSLipID ,ShippingDate ,DeliveryDate ,CarrierName ,TrackingNo, PlantCode, Customer, ShipTo} = props.shipping;
-    
+   
+    const formatDate = (date) => {
+        if (!date) return '';
+        const [year, month, day] = date.split('-');
+        return `${month}/${day}/${year.slice(2)}`;
+      };
+
     return(
         <div>
             <h2>Shipping Details</h2>
-            <label htmlFor="PackingSLipIDInput">Packing Slip ID</label>
+            <label htmlFor="ShippingDateInput">Shipping Date</label>
+            <input
+                type="date"
+                value={ShippingDate}
+                name="ShippingDate"
+                id="ShippingDateInput"
+                onChange={props.handleChange}
+                onFocus={(e) => (e.target.type = 'date')}
+                onBlur={(e) => {
+                    e.target.type = 'text';
+                    const formattedDate = formatDate(e.target.value);
+                    e.target.value = formattedDate;
+                    props.handleChange(e);
+                }}
+            />
+            <label htmlFor="DeliveryDateInput">Delivery Date</label>
+            <input 
+            type="date"
+            value={DeliveryDate}
+            name="DeliveryDate"
+            id="DeliveryDateInput"
+            onChange={props.handleChange}
+            onFocus={(e) => (e.target.type = 'date')}
+            onBlur={(e) => {
+                e.target.type = 'text';
+                const formattedDate = formatDate(e.target.value);
+                e.target.value = formattedDate;
+                props.handleChange(e);
+            }}
+            ></input>
+             <label htmlFor="PackingSLipIDInput">Packing Slip ID</label>
             <input 
             value={PackingSLipID}
             name="PackingSLipID"
             id="PackingSLipIDInput"
             onChange={props.handleChange}
             ></input>
-            <label htmlFor="ShippingDateInput">Shipping Date</label>
-            <input 
-            value={ShippingDate}
-            name="ShippingDate"
-            id="ShippingDateInput"
-            onChange={props.handleChange}
-            ></input>
-            <label htmlFor="DeliveryDateInput">Delivery Date</label>
-            <input 
-            value={DeliveryDate}
-            name="DeliveryDate"
-            id="DeliveryDateInput"
-            onChange={props.handleChange}
-            ></input>
             <label htmlFor="CarrierNameInput">Carrier Name</label>
-            <input 
+            <Dropdown 
             value={CarrierName}
             name="CarrierName"
-            id="CarrierNameInput"
-            onChange={props.handleChange}
-            ></input>
+            id='CarrierNameInput'
+            onChange={props.handleChange} />
             <label htmlFor="TrackingNoInput">Tracking No.</label>
             <input 
             value={TrackingNo}

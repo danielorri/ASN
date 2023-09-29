@@ -78,33 +78,33 @@ const repackItems = async(page, parts) =>{
         e++;
      }
 
-     await page.waitForSelector("#_lnmufb > table > tbody > tr > td > app-scc-shipnotice-packaging > div > app-scc-shipnotice-packaging-view > div > div > pe-steps > div > div.ui-lg-12.ui-md-12.ui-sm-12 > div:nth-child(1) > div > table > tbody > tr > td:nth-child(3) > button.nextButton.button-shape.button-focused");
-     await page.click('#_lnmufb > table > tbody > tr > td > app-scc-shipnotice-packaging > div > app-scc-shipnotice-packaging-view > div > div > pe-steps > div > div.ui-lg-12.ui-md-12.ui-sm-12 > div:nth-child(1) > div > table > tbody > tr > td:nth-child(3) > button.nextButton.button-shape.button-focused');
+     await page.waitForSelector("button.nextButton.button-shape.button-focused");
+     await page.click('button.nextButton.button-shape.button-focused');
      // handle customized
      
-     await handleCustomized(page, parts);
-    
-    //  await page.waitForSelector("#_lnmufb > table > tbody > tr > td > app-scc-shipnotice-packaging > div > app-scc-shipnotice-packaging-view > div > div > pe-steps > div > div.ui-lg-12.ui-md-12.ui-sm-12 > div:nth-child(1) > div > table > tbody > tr > td:nth-child(3) > button.nextButton.button-shape.button-focused");
-    //  await page.click('#_lnmufb > table > tbody > tr > td > app-scc-shipnotice-packaging > div > app-scc-shipnotice-packaging-view > div > div > pe-steps > div > div.ui-lg-12.ui-md-12.ui-sm-12 > div:nth-child(1) > div > table > tbody > tr > td:nth-child(3) > button.nextButton.button-shape.button-focused');
+    //  await handleCustomized(page, parts);
+    await page.waitForTimeout(2000); 
+     await page.waitForSelector("#_lnmufb > table > tbody > tr > td > app-scc-shipnotice-packaging > div > app-scc-shipnotice-packaging-view > div > div > pe-steps > div > div.ui-lg-12.ui-md-12.ui-sm-12 > div:nth-child(1) > div > table > tbody > tr > td:nth-child(3) > button.nextButton.button-shape.button-focused");
+     await page.click('#_lnmufb > table > tbody > tr > td > app-scc-shipnotice-packaging > div > app-scc-shipnotice-packaging-view > div > div > pe-steps > div > div.ui-lg-12.ui-md-12.ui-sm-12 > div:nth-child(1) > div > table > tbody > tr > td:nth-child(3) > button.nextButton.button-shape.button-focused');
 
-    //  await page.waitForTimeout(2000); 
-    //  await page.waitForSelector('#_lnmufb > table > tbody > tr > td > app-scc-shipnotice-packaging > div > app-scc-shipnotice-packaging-view > div > div > pe-steps > pe-step > div > print-labels-step > review-treetable > div > print-pdf-button > span');
-    //  await page.click('#_lnmufb > table > tbody > tr > td > app-scc-shipnotice-packaging > div > app-scc-shipnotice-packaging-view > div > div > pe-steps > pe-step > div > print-labels-step > review-treetable > div > print-pdf-button > span');
-    //  await page.waitForTimeout(5000); 
+     await page.waitForTimeout(2000); 
+     await page.waitForSelector('#_lnmufb > table > tbody > tr > td > app-scc-shipnotice-packaging > div > app-scc-shipnotice-packaging-view > div > div > pe-steps > pe-step > div > print-labels-step > review-treetable > div > print-pdf-button > span');
+     await page.click('#_lnmufb > table > tbody > tr > td > app-scc-shipnotice-packaging > div > app-scc-shipnotice-packaging-view > div > div > pe-steps > pe-step > div > print-labels-step > review-treetable > div > print-pdf-button > span');
+     await page.waitForTimeout(5000); 
      
-    //  await page.click('#_lnmufb > table > tbody > tr > td > app-scc-shipnotice-packaging > div > app-scc-shipnotice-packaging-view > div > div > pe-steps > div > div.ui-lg-12.ui-md-12.ui-sm-12 > div:nth-child(1) > div > table > tbody > tr > td:nth-child(3) > button.reviewButton.button-shape.button-focused');
+     await page.click('#_lnmufb > table > tbody > tr > td > app-scc-shipnotice-packaging > div > app-scc-shipnotice-packaging-view > div > div > pe-steps > div > div.ui-lg-12.ui-md-12.ui-sm-12 > div:nth-child(1) > div > table > tbody > tr > td:nth-child(3) > button.reviewButton.button-shape.button-focused');
 
     
-    //  await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
-    //  await page.waitForSelector('button#_t1zf');
-    //  await page.click('button#_t1zf');
-    //  await page.waitForTimeout(2000);
-    //  await page.waitForSelector('button#_ogx3hc');
-    //  await page.click('button#_ogx3hc');
+     await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
+     await page.waitForSelector('button#_t1zf');
+     await page.click('button#_t1zf');
+     await page.waitForTimeout(2000);
+     await page.waitForSelector('button#_ogx3hc');
+     await page.click('button#_ogx3hc');
 
-    //  await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
-    //  await page.waitForSelector('a#_lzc3hd');
-    //  await page.click('a#_lzc3hd');
+     await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
+     await page.waitForSelector('a#_lzc3hd');
+     await page.click('a#_lzc3hd');
 
     } catch (error) {
         console.error(`Attempt ${retries + 1}: Element not found or could not be clicked. Error: ${error.message}`);

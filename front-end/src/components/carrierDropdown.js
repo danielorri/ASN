@@ -226,7 +226,7 @@ const Dropdown = (props) => {
   };
 
   return (
-    <div>
+    <div style={{position:"relative"}}>
       <input
         type="text"
         value={filter}
@@ -235,7 +235,7 @@ const Dropdown = (props) => {
         onChange={handleInputChange}
       />
       {isOpen && (
-        <div>
+        <div className='dropdown'>
           {filteredOptions.map((option, index) => (
             <div
               key={index}

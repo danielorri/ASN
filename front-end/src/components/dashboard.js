@@ -185,7 +185,7 @@ const Dashboard = ()=>{
             handleRepack={handleRepack}
             />
 
-          <button onClick={handleSubmit}>Submit</button>
+          <button onClick={handleSubmit} className="submit">Submit</button>
 
           {serverResponse && <p>Server Response: {serverResponse}</p>}
         </div>

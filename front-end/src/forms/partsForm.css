@@ -1,0 +1,36 @@
+.Form{
+    width: 80%;
+    margin: auto;
+}
+
+.partsForm input{
+ padding: 3px;
+ border-radius: 5px;
+}
+
+.partsForm select{
+    width: 100%;
+    text-align: center;
+    padding: 3px;
+    font-weight: 600;
+    border-radius: 5px;
+}
+
+.partsForm button{
+    padding: 3px;
+    background-color: red;
+    color: white;
+    border-radius: 5px;
+    width: 5rem;
+}
+
+.submit{
+    margin-top: 1rem;
+    margin-left: 6rem;
+    background-color: green;
+    color: white;
+    padding: 5px;
+    width: 5rem;
+    font-weight: 600;
+    border-radius: 5px;
+}

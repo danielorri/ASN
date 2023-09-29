@@ -1,6 +1,7 @@
 const fillForm = require("./helpers/fillForm");
 
 const startASN = async (page, initialPart, shipping) => {
+  await page.waitForNavigation({ waitUntil: 'domcontentloaded' }); // Wait for navigation
   await page.waitForSelector('#search-btn-id');
   // Click the search button
   await page.click('#search-btn-id');
@@ -23,7 +24,7 @@ const startASN = async (page, initialPart, shipping) => {
       retries++;
 
       // You can add a page reload here if needed
-      await page.reload({ waitUntil: 'domcontentloaded' });
+      await page.reload({ waitUntil: 'networkidle2', timeout: 0 });
     }
   }
 

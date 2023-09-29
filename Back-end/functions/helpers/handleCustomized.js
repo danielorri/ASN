@@ -2,9 +2,13 @@ const handleCustomized = async (page, parts) => {
   await page.waitForSelector('table.undefined');
 
   const tableGroups = await page.$$eval('table.undefined', tables => {
-    return tables.map(table => {
-      const inputs = [...table.querySelectorAll('.ui-editable-column[disabled]')];
-      return inputs.map(input => input.value);
+    return tables.map(outerTable => {
+      const rows = [...outerTable.querySelectorAll('.ui-treetable-row')];
+
+      return rows.map(row => {
+        const inputs = [...row.querySelectorAll('.ui-editable-column[disabled]')];
+        return inputs.map(input => input.value);
+      });
     });
   });
 
@@ -12,6 +16,9 @@ const handleCustomized = async (page, parts) => {
 };
 
 module.exports = handleCustomized;
+
+
+
 
 
 

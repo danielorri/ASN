@@ -32,7 +32,7 @@ app.post("/buildASN", async(req, res)=>{
     }
     }
     const browser = await puppeteer.launch({
-        
+        headless: "new",
         defaultViewport: false
     });
     const page = await browser.newPage();

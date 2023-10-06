@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import PartForm from "../forms/partsForm";
 import ShippingForm from "../forms/shippingForm";
 import Repack from "../FunctionHelpers/repackFunction";
+import getParts from "../FunctionHelpers/getParts";
 
 const Dashboard = ()=>{
   // const [progress, setProgress] = useState(0);
@@ -174,11 +175,37 @@ const Dashboard = ()=>{
     }
   };
 
+  //get Parts
+  const handleGetParts = async () => {
+    try {
+      const orders = await getParts(shipping);
+
+      const transformedParts = orders.flatMap(order => {
+        const isMixed = order.Parts.length === 1;
+        const mixedOrMaster = isMixed ? "Master" : "Mixed";
+
+        return order.Parts.map(part => ({
+          partNo: part.CustomerPart,
+          quantity: part.PartQuantity,
+          mixedOrMaster,
+          repackedQuantity: part.PartQuantity,
+          customized: [],
+        }));
+      });
+
+      setParts(transformedParts);
+    } catch (error) {
+      console.error('Error fetching parts:', error);
+      // Handle errors as needed
+    }
+  };
+
     return(
         <div>
             <ShippingForm 
             shipping ={shipping}
             handleChange ={handleShippingChange}
+            handleGetParts={handleGetParts}
             />
             <PartForm
             handleInputChange={handleInputChange}

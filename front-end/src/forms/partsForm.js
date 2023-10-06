@@ -4,7 +4,7 @@ import "./partsForm.css";
 const PartForm = (props) => {
  
   return (
-    <div class="Form partsForm">
+    <div className="Form partsForm">
       <h2>Part Details</h2>
       {/* <button onClick={props.handleRepack}>Repack All</button> */}
       <table>
@@ -30,7 +30,6 @@ const PartForm = (props) => {
               </td>
               <td>
                 <input
-                  type="number"
                   name="quantity"
                   value={part.quantity}
                   onChange={(e) => props.handleInputChange(e, index)}
@@ -48,7 +47,6 @@ const PartForm = (props) => {
               </td>
               <td>
                 <input
-                  type="number"
                   name="repackedQuantity"
                   value={part.repackedQuantity}
                   onChange={(e) => props.handleInputChange(e, index)}

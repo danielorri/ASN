@@ -1,9 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PartForm from "../forms/partsForm";
 import ShippingForm from "../forms/shippingForm";
 import Repack from "../FunctionHelpers/repackFunction";
 
 const Dashboard = ()=>{
+  // const [progress, setProgress] = useState(0);
+  // const [message, setMessage] = useState("");
+
+  useEffect(() => {
+   
+  }, []); 
 
     //Shipping
     const initialShippingValues= {
@@ -188,6 +194,8 @@ const Dashboard = ()=>{
           <button onClick={handleSubmit} className="submit">Submit</button>
 
           {serverResponse && <p>Server Response: {serverResponse}</p>}
+          {/* {progress && <p>Progress: {progress}</p> }
+          {message && <p>message: {message}</p>} */}
         </div>
     )
 };

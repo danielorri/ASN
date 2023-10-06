@@ -6,6 +6,7 @@ const startASN = async (page, initialPart, shipping) => {
   // Click the search button
   await page.click('#search-btn-id');
 
+  console.log("logged in successful");
   // Assuming you have already navigated to the target page in your Puppeteer script
   const maxRetries = 3;
   let retries = 0;
@@ -28,6 +29,7 @@ const startASN = async (page, initialPart, shipping) => {
     }
   }
 
+  console.log("starting ASN");
   await page.waitForSelector('input#_djckb'); // Wait for the input field to appear
   await page.type('input#_djckb', initialPart.partNo);
 
@@ -53,7 +55,7 @@ const startASN = async (page, initialPart, shipping) => {
               const clickableElement = await row.$('td'); // You can adjust the selector to find the clickable element
               if (clickableElement) {
                 await clickableElement.click();
-                console.log('Clicked the row');
+                console.log(`Part no.${initialPart.partNo} selected`);
                 return true;
               }
             }
@@ -61,15 +63,15 @@ const startASN = async (page, initialPart, shipping) => {
             const clickableElement = await row.$('td'); // You can adjust the selector to find the clickable element
             if (clickableElement) {
               await clickableElement.click();
-              console.log('Clicked the row');
+              console.log(`Part no.${initialPart.partNo} selected`);
               return true;
             }
           }
         } else {
-          console.log("Plant code element not found.");
+          console.log(`Part no.${initialPart.partNo} not found`);
         }
       } else {
-         console.log("Plant code element not found.");
+         console.log(`Part no.${initialPart.partNo} not found`);
       }
     }
   }
@@ -87,10 +89,19 @@ const startASN = async (page, initialPart, shipping) => {
             throw new Error("Part not found");
         }// Break out of the loop on successful row processing
     } catch (error) {
-      console.log(error);
+      console.log("Part not found");
+      
+      const elements = await page.$$('span.w-togglebox-icon-off');
+    
+    if (elements.length > 0) {
+      // Click on each element with the specified class
+      for (const element of elements) {
+        await element.click();
+      }
+    } else {
       const today = new Date();
-      const startDate = new Date(today.getFullYear(), today.getMonth() + retries2 + 1, 0);
-      const endDate = new Date(today.getFullYear(), today.getMonth() + retries2 + 2, 0);
+      const startDate = new Date(today.getFullYear(), today.getMonth() + retries2, 0);
+      const endDate = new Date(today.getFullYear(), today.getMonth() + retries2 + 1, 0);
       await page.waitForTimeout(2000);
       await page.waitForSelector('input#DF_bovso');
       await page.click('input#DF_bovso', { clickCount: 3 });
@@ -116,6 +127,7 @@ const startASN = async (page, initialPart, shipping) => {
       }
       retries2++;
       console.log(`changing date ${retries2}`);
+    }
     }
   }
 

@@ -3,7 +3,8 @@ const pickParts = async(page, parts, shipping) =>{
     if (!part.partNo || part.partNo.trim() === "") {
         continue; // Skip this part
       }
-     await page.waitForNavigation({ waitUntil: 'domcontentloaded' }); // Wait for navigation
+      console.log(`Looking Part no.${part.partNo} ...`);
+     await page.waitForNavigation({ waitUntil: 'networkidle0' }); // Wait for navigation
  
       // Wait for the "Add Order Line Item" button to be present
         await page.waitForSelector('button#_ktkuqc');
@@ -12,7 +13,7 @@ const pickParts = async(page, parts, shipping) =>{
         await page.click('button#_ktkuqc');
 
 
-    await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
+    await page.waitForNavigation({ waitUntil: 'networkidle2' });
 
     await page.waitForSelector('input#_tlvs4b'); // Wait for the input field to appear
     await page.type('input#_tlvs4b', part.partNo);
@@ -43,7 +44,7 @@ const pickParts = async(page, parts, shipping) =>{
                     const clickableElement = await row.$('td'); // You can adjust the selector to find the clickable element
                     if (clickableElement) {
                         await clickableElement.click();
-                        console.log('Clicked the row');
+                        console.log(`Part no.${part.partNo} selected`);
                         return true;
                     }
                     }
@@ -51,15 +52,15 @@ const pickParts = async(page, parts, shipping) =>{
                     const clickableElement = await row.$('td'); // You can adjust the selector to find the clickable element
                     if (clickableElement) {
                     await clickableElement.click();
-                    console.log('Clicked the row');
+                    console.log(`Part no.${part.partNo} selected`);
                     return true;
                     }
                 }
                 } else {
-                console.log("Plant code element not found.");
+                  console.log(`Part no.${part.partNo} not found`);
                 }
             } else {
-                console.log("Plant code element not found.");
+              console.log(`Part no.${part.partNo} not found`);
                
             }
           } else {
@@ -81,10 +82,10 @@ const pickParts = async(page, parts, shipping) =>{
                 throw new Error("Part not found");
             }
         } catch (error) {
-            console.log(error);
+            console.log(`Part no.${part.partNo} not found`);
             const today = new Date();
-            const startDate = new Date(today.getFullYear(), today.getMonth() + retries2 + 1, 0);
-            const endDate = new Date(today.getFullYear(), today.getMonth() + retries2 + 2, 0);
+            const startDate = new Date(today.getFullYear(), today.getMonth() + retries2, 0);
+            const endDate = new Date(today.getFullYear(), today.getMonth() + retries2 + 1, 0);
             await page.waitForTimeout(2000);
             await page.waitForSelector('input#DF_l4uaq');
             await page.click('input#DF_l4uaq', { clickCount: 3 });
@@ -114,17 +115,17 @@ const pickParts = async(page, parts, shipping) =>{
       }
 
     try {
-        await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
+        await page.waitForNavigation({ waitUntil: 'networkidle2' });
         await page.waitForSelector("button#_x0hhpb");
         await page.click("button#_x0hhpb"); 
 
-        await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
+        await page.waitForNavigation({ waitUntil: 'networkidle2' });
         await page.waitForSelector("button#_uz6b3");
         await page.click("button#_uz6b3");
     } catch (error) {
         await page.waitForSelector("button#_x0hhpb");
         await page.click("button#_x0hhpb"); 
-        await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
+        await page.waitForNavigation({ waitUntil: 'networkidle2' });
         await page.waitForSelector("button#_uz6b3");
         await page.click("button#_uz6b3");
     }

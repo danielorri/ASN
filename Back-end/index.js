@@ -5,11 +5,12 @@ const login = require("./functions/login"); //Import Login function
 const startASN = require("./functions/startASN"); //Import startASN function
 const pickParts = require("./functions/pickParts");
 const enterQuantity = require("./functions/enterQuantity");
+const repackItems = require("./functions/reapackItems");
 
 const app = express();
-
 app.use(cors());
 app.use(express.json());
+
 
 app.post("/buildASN", async(req, res)=>{
     const {parts, shipping, cookies} = req.body;
@@ -30,9 +31,8 @@ app.post("/buildASN", async(req, res)=>{
         password = value;
     }
     }
-
     const browser = await puppeteer.launch({
-        headless:false,
+        
         defaultViewport: false
     });
     const page = await browser.newPage();
@@ -40,20 +40,24 @@ app.post("/buildASN", async(req, res)=>{
     await page.goto('https://service.ariba.com/Supplier.aw/109563048/aw?awh=r&awssk=0vRmwfqP&dard=1', 
     {waitUntil: "load"});
     //Login
+
     await login(page, username, password);
 
-    //Start ASN
+    res.write(JSON.stringify({ progress: 10 }) + '\n');
+
     await startASN(page,parts[0], shipping);
     if(parts.length > 1){
         await pickParts(page, parts.slice(1), shipping)
     }
-
-    console.log("Stop 1");
     //Enter Quantities
     await enterQuantity(page, parts);
 
-    //  await browser.close();
+    await repackItems(page, parts.slice(0, -1));
+
+    await browser.close();
 });
+
+
 
 app.listen(3010, () => {
     console.log(`Server is running on port 3010`);

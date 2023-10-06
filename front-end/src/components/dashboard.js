@@ -1,9 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PartForm from "../forms/partsForm";
 import ShippingForm from "../forms/shippingForm";
 import Repack from "../FunctionHelpers/repackFunction";
 
 const Dashboard = ()=>{
+  // const [progress, setProgress] = useState(0);
+  // const [message, setMessage] = useState("");
+
+  useEffect(() => {
+   
+  }, []); 
 
     //Shipping
     const initialShippingValues= {
@@ -20,7 +26,12 @@ const Dashboard = ()=>{
 
     const handleShippingChange = (e) =>{
         const { name, value }= e.target;
-        setShipping({ ...shipping, [name]: value});
+        const generatedPackingSLipID = value.replace(/\//g, ''); 
+        if(name === 'ShippingDate'){
+          setShipping({ ...shipping, [name]: value, PackingSLipID: generatedPackingSLipID});
+        } else{
+          setShipping({ ...shipping, [name]: value});
+        }
     }
 
     //Part
@@ -180,9 +191,11 @@ const Dashboard = ()=>{
             handleRepack={handleRepack}
             />
 
-          <button onClick={handleSubmit}>Submit</button>
+          <button onClick={handleSubmit} className="submit">Submit</button>
 
           {serverResponse && <p>Server Response: {serverResponse}</p>}
+          {/* {progress && <p>Progress: {progress}</p> }
+          {message && <p>message: {message}</p>} */}
         </div>
     )
 };

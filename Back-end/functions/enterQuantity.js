@@ -1,13 +1,12 @@
-const enterQuantity = async (page, parts) => {
+const enterQuantity = async(page, parts) =>{
   try {
-    await page.waitForNavigation({ waitUntil: 'networkidle0' }); // or 'networkidle2'
+    await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
 
     let arri = 0;
     let nextPageButtonExists = true;
-    console.log("quantities being enetered");
+
     while (nextPageButtonExists) {
       // Wait for the input element to appear on the page
-      console.log("quantities being enetered 2");
       await page.waitForSelector('input.w-txt');
       const elements = await page.$$(`input.w-txt`);
 
@@ -17,10 +16,9 @@ const enterQuantity = async (page, parts) => {
       // Log the values of all the input elements
       for (const element of elements) {
         const value = await element.evaluate((el) => el.value.trim());
-        console.log(value);
         // Check if the value is "2,000.000" and change it to "10,000"
         if (positiveNumberRegex.test(value)) {
-          console.log('ok');
+          console.log(`${parts[arri].partNo}: ${parts[arri].quantity}`);
           await element.click({ clickCount: 3 }); // Triple-click to select all text
           await element.type('', { delay: 100 });
           await page.waitForTimeout(2000);
@@ -49,11 +47,18 @@ const enterQuantity = async (page, parts) => {
 
      // Click the button
      await page.click('button#_uz6b3');
+
+     await page.waitForTimeout(5000); 
+     
+     //Wait for the button Pack_items
+     await page.waitForSelector('button#_ffzbzc');
+
+     await page.click('button#_ffzbzc');
      
 
   } catch (error) {
-    console.log(error);
+      console.log(error);
   }
-};
-
-module.exports = enterQuantity;
+  };
+  
+  module.exports = enterQuantity; 

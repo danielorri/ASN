@@ -1,6 +1,6 @@
 // login.js
 
-const login = async (page, username, password) => {
+const login = async (page, username, password, sendUpdateToClients ) => {
     // Wait for the UserName input field to load
     await page.waitForSelector('input[name="UserName"]');
     await page.type('input[name="UserName"]', username);
@@ -17,8 +17,6 @@ const login = async (page, username, password) => {
     // Find and click the "Login" button by its value or attribute
     await page.waitForSelector('input[value="Login"]');
     await page.click('input[value="Login"]');
-    // Wait for some time or perform additional actions as needed after login.
-
     // Return a promise or data indicating the login status if necessary.
 };
 

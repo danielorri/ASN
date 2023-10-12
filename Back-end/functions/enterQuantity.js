@@ -1,6 +1,6 @@
 const enterQuantity = async(page, parts) =>{
   try {
-    await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
+    await page.waitForNavigation({ waitUntil: 'networkidle2' });
 
     let arri = 0;
     let nextPageButtonExists = true;

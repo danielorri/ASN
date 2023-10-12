@@ -24,6 +24,7 @@ const Dashboard = ()=>{
         ShipTo: ""
     };
     const [shipping, setShipping] = useState(initialShippingValues);
+    const [isPartsClicked, setIsPartsClicked] = useState(false);
 
     const handleShippingChange = (e) =>{
         const { name, value }= e.target;
@@ -193,7 +194,17 @@ const Dashboard = ()=>{
         }));
       });
 
+      // Add an empty object to the transformedParts array
+      transformedParts.push({
+        partNo: "",
+        quantity: "",
+        mixedOrMaster: "Mixed",
+        repackedQuantity: "",
+        customized: [],
+      });
+
       setParts(transformedParts);
+      setIsPartsClicked(true);
     } catch (error) {
       console.error('Error fetching parts:', error);
       // Handle errors as needed
@@ -218,7 +229,7 @@ const Dashboard = ()=>{
             handleRepack={handleRepack}
             />
 
-          <button onClick={handleSubmit} className="submit">Submit</button>
+          <button onClick={handleSubmit} className="submit" disabled={!isPartsClicked}>Submit</button>
 
           {serverResponse && <p>Server Response: {serverResponse}</p>}
           {/* {progress && <p>Progress: {progress}</p> }

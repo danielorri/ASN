@@ -1,6 +1,6 @@
 const enterQuantity = async(page, parts) =>{
   try {
-    await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
+    await page.waitForNavigation({ waitUntil: 'networkidle0' });
 
     let arri = 0;
     let nextPageButtonExists = true;
@@ -20,9 +20,9 @@ const enterQuantity = async(page, parts) =>{
         if (positiveNumberRegex.test(value)) {
           console.log(`${parts[arri].partNo}: ${parts[arri].quantity}`);
           await element.click({ clickCount: 3 }); // Triple-click to select all text
-          await element.type('', { delay: 100 });
-          await page.waitForTimeout(2000);
-          await element.type(parts[arri].quantity, { delay: 100 });
+          await element.press('Backspace'); // Clear the selected text
+          await page.waitForTimeout(100); // Optional delay if needed
+          await element.type(`${parts[arri].quantity}`, { delay: 100 });
           arri++;
         }
       }

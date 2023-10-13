@@ -4,7 +4,7 @@ const pickParts = async(page, parts, shipping) =>{
         continue; // Skip this part
       }
       console.log(`Looking Part no.${part.partNo} ...`);
-     await page.waitForNavigation({ waitUntil: 'networkidle0' }); // Wait for navigation
+     await page.waitForNavigation({ waitUntil: 'networkidle0' , timeout: 0}); // Wait for navigation
  
       // Wait for the "Add Order Line Item" button to be present
         await page.waitForSelector('button#_ktkuqc');

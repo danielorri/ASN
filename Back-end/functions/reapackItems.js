@@ -68,12 +68,12 @@ const repackItems = async(page, parts) =>{
         // Clear the input field and type the appropriate value
         await firstInput.click({ clickCount: 3 }); // Select all text in the input field
         await firstInput.press('Backspace'); // Clear the input field
-        await firstInput.type(firstQ);
+        await firstInput.type(`${firstQ}`);
 
         // Clear the input field and type the appropriate value
         await secondInput.click({ clickCount: 3 }); // Select all text in the input field
         await secondInput.press('Backspace'); // Clear the input field
-        await secondInput.type(secondQ);
+        await secondInput.type(`${secondQ}`);
         
         e++;
      }
@@ -82,7 +82,7 @@ const repackItems = async(page, parts) =>{
      await page.click('button.nextButton.button-shape.button-focused');
      // handle customized
      console.log("Repacked successful");
-    //  await handleCustomized(page, parts);
+     await handleCustomized(page, parts);
     await page.waitForTimeout(2000); 
      await page.waitForSelector("#_lnmufb > table > tbody > tr > td > app-scc-shipnotice-packaging > div > app-scc-shipnotice-packaging-view > div > div > pe-steps > div > div.ui-lg-12.ui-md-12.ui-sm-12 > div:nth-child(1) > div > table > tbody > tr > td:nth-child(3) > button.nextButton.button-shape.button-focused");
      await page.click('#_lnmufb > table > tbody > tr > td > app-scc-shipnotice-packaging > div > app-scc-shipnotice-packaging-view > div > div > pe-steps > div > div.ui-lg-12.ui-md-12.ui-sm-12 > div:nth-child(1) > div > table > tbody > tr > td:nth-child(3) > button.nextButton.button-shape.button-focused');

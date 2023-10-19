@@ -36,5 +36,9 @@
 }
 
 .submit:disabled{
-    visibility: hidden;
+    background-color: #CCC;
+}
+
+.ctnCount{
+    font-weight: 600;
 }

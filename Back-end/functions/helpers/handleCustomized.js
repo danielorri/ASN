@@ -1,35 +1,52 @@
 const handleCustomized = async (page, parts) => {
-  const generateSelector = (partIndex, tableIndex, inputIndex) => {
-    return `#_lnmufb > table > tbody > tr > td > app-scc-shipnotice-packaging > div > app-scc-shipnotice-packaging-view > div > div > pe-steps > pe-step > div > app-confirm-step > review-treetable > p-panel > div > div > div > p-treetable > div > div > table > tbody:nth-child(${tableIndex}) > div:nth-child(${partIndex}) > td > table > tbody > div:nth-child(${inputIndex}) > td > table > tbody > div > td:nth-child(5) > span > input`;
-  };
+  await page.waitForSelector('input.ui-editable-column.input.ng-untouched.ng-pristine');
+  const elements = await page.$$('input.ui-editable-column.input.ng-untouched.ng-pristine');
 
-  for (let i = 0; i < parts.length; i++) {
-    const part = parts[i];
+   // Array to store values
+   const values = [];
 
-    for (let j = 0; j < part.customized.length; j++) {
-      // Generate selectors based on the structure of your HTML
-      const selectorForInput = generateSelector(i + 1, 2 + j, 2);
+   // Iterate over the selected elements and push their values into the array
+   for (const element of elements) {
+     const value = await page.evaluate(el => el.value, element);
+     values.push(value);
+   }
 
-      // Use page.$ to get the element handle
-      const inputElementHandle = await page.$(selectorForInput);
+   let count = 0;
 
-      // Extract the value using getProperty
-      const inputValueProperty = await inputElementHandle.getProperty('value');
+   for(let i = 0; i < parts.length; i++){
+    innerLoop:for(let j = 0; j < parts[i].customized.length; j++){
+      if(parseInt(values[count]) === parseInt(parts[i].customized[j])){
+        console.log(`${values[count]} is equal to ${parts[i].customized[j]}`);
+      }else{
+        console.log(`${values[count]} is different to ${parts[i].customized[j]}`);
+        count += parts[i].customized.length - j;
+        await page.waitForSelector('input.ui-dropdown-button.ui-button-70');
+        const buttons = await page.$$('input.ui-dropdown-button.ui-button-70');
+        await buttons[i].click();
 
-      // Extract the actual value from the property
-      const valueOfInput = await inputValueProperty.jsonValue();
+        await page.waitForSelector("input.ui-editable-column.input.ng-untouched.ng-pristine.ng-valid");
+        const editableInputs = await page.$$("input.ui-editable-column.input.ng-untouched.ng-pristine.ng-valid");
 
-      // Console log the value
-      console.log(`Part ${i + 1}, Input ${j + 1}:`, valueOfInput);
-
-      // You can now compare the value with the corresponding part.customized value
-      // Your comparison logic goes here
-      if (part.customized[j] === valueOfInput) {
-        // Do something
+        for(const input of editableInputs){
+          await input.click({ clickCount: 3 }); // Triple-click to select all text
+          await input.press('Backspace'); // Clear the selected text
+          await input.type(`${parts[i].customized[j]}`);
+          j++;
+        }
+        await page.waitForTimeout(2000);
+        // Click the "Save" button
+        await page.waitForSelector('input[value="Save"]');
+        const saveButton = await page.$('input[value="Save"]');
+        await saveButton.click();
+        await page.waitForTimeout(2000);
+        break innerLoop;
       }
+      count++;
     }
-  }
+   }
+ 
 };
+
 
 module.exports = handleCustomized;
 

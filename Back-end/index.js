@@ -96,7 +96,7 @@ ORDER BY ORDR.DocNum
 
 app.post("/buildASN", async(req, res) => {
   const { parts, shipping, cookies } = req.body;
-
+  console.log("starting...");
   // Extract username and password from cookies
   const { username, password } = extractCredentials(cookies);
 

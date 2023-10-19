@@ -1,3 +1,4 @@
+import { cloneElement } from "react";
 import "./partsForm.css";
 
 
@@ -6,7 +7,7 @@ const PartForm = (props) => {
   return (
     <div className="Form partsForm">
       <h2>Part Details</h2>
-      {/* <button onClick={props.handleRepack}>Repack All</button> */}
+      <button onClick={props.handleRepack}>Repack All</button>
       <table>
         <thead>
           <tr>
@@ -14,7 +15,7 @@ const PartForm = (props) => {
             <th>Quantity</th>
             <th>Mixed or Master</th>
             <th>Repacked Quantity</th>
-            {/* <th>Cartons</th> */}
+            <th>Cartons</th>
           </tr>
         </thead>
         <tbody>
@@ -52,7 +53,7 @@ const PartForm = (props) => {
                   onChange={(e) => props.handleInputChange(e, index)}
                 />
               </td>
-              {/* <td>
+              <td style={{textAlign: "center"}}>
                 {props.editModes[index] ? (
                   part.customized.map((value, subIndex) => (
                     <input
@@ -64,7 +65,7 @@ const PartForm = (props) => {
                     />
                   ))
                 ) : (
-                  part.customized.join(", ")
+                  <span className="ctnCount">{part.customized.length}</span>
                 )}
               </td>
               <td>
@@ -73,7 +74,7 @@ const PartForm = (props) => {
                 ) : (
                   <button onClick={() => props.handleEditPart(index)}>Edit</button>
                 )}
-              </td> */}
+              </td>
               <td>
                 <button onClick={() => props.handleRemovePart(index)}>Remove</button>
               </td>

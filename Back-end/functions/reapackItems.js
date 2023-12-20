@@ -11,7 +11,7 @@ const repackItems = async(page, parts) =>{
     try {
         await repack(page, parts);
     } catch (error) {
-        console.log("Repacked failed");
+        console.log(error);
         try {
             await page.reload({ waitUntil: 'domcontentloaded' });
             await page.waitForTimeout(30000); 

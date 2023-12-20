@@ -2,7 +2,7 @@ const repack = async(page, parts) =>{
     console.log("Repacking");
     await page.waitForNavigation({ waitUntil: 'networkidle0', timeout: 0  });
     
-    await page.waitForSelector('label.ui-dropdown-label', {timeout: 0});
+    await page.waitForSelector('label.ui-dropdown-label');
      const dropdowns = await page.$$('label.ui-dropdown-label');
 
      // Loop through each dropdown and set the selected value based on parts[i].mixedOrMaster

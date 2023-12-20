@@ -101,7 +101,7 @@ app.post("/buildASN", async(req, res) => {
   const { username, password } = extractCredentials(cookies);
 
   const browser = await puppeteer.launch({
-    headless: "new",
+    headless: false,
     defaultViewport: false
   });
 

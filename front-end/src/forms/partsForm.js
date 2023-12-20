@@ -20,7 +20,7 @@ const PartForm = (props) => {
         </thead>
         <tbody>
           {props.parts.map((part, index) => (
-            <tr key={index}>
+            <tr key={index} style={{ backgroundColor: part.isDuplicate? 'red' : 'inherit' }}>
               <td>
                 <input
                   type="text"
@@ -82,6 +82,7 @@ const PartForm = (props) => {
           ))}
         </tbody>
       </table>
+      <button onClick={props.handleCheckDuplicate}>Check for Duplicates</button>
     </div>
   );
 };

@@ -24,7 +24,7 @@ const Dashboard = ()=>{
         ShipTo: ""
     };
     const [shipping, setShipping] = useState(initialShippingValues);
-    const [isPartsClicked, setIsPartsClicked] = useState(false);
+    const [isPartsClicked, setIsPartsClicked] = useState(true);
 
     const handleShippingChange = (e) =>{
         const { name, value }= e.target;
@@ -42,6 +42,7 @@ const Dashboard = ()=>{
         quantity: "",
         mixedOrMaster: "Mixed",
         repackedQuantity: "",
+        isDuplicate: false,
         customized:[]
       };
     
@@ -64,6 +65,7 @@ const Dashboard = ()=>{
                 quantity: "",
                 mixedOrMaster: "Mixed",
                 repackedQuantity: "",
+                isDuplicate: false,
                 customized:[]
               });
           }
@@ -190,6 +192,7 @@ const Dashboard = ()=>{
           quantity: part.PartQuantity,
           mixedOrMaster,
           repackedQuantity: part.PartQuantity,
+          isDuplicate: false,
           customized: [],
         }));
       });
@@ -200,6 +203,7 @@ const Dashboard = ()=>{
         quantity: "",
         mixedOrMaster: "Mixed",
         repackedQuantity: "",
+        isDuplicate: false,
         customized: [],
       });
 
@@ -210,6 +214,32 @@ const Dashboard = ()=>{
       // Handle errors as needed
     }
   };
+
+  const handleCheckDuplicate = () => {
+    const partNos = new Set();
+    const duplicatePartNos = new Set();
+  
+    // Iterate through all parts to check for duplicates
+    parts.forEach((part) => {
+      const { partNo } = part;
+  
+      if (partNos.has(partNo)) {
+        duplicatePartNos.add(partNo);
+      } else {
+        partNos.add(partNo);
+      }
+    });
+  
+    // Update state to mark duplicates
+    const updatedParts = parts.map((part) => ({
+      ...part,
+      isDuplicate: duplicatePartNos.has(part.partNo),
+    }));
+  
+    // Update the state with the new information
+    setParts(updatedParts);
+  };
+  
 
     return(
         <div>
@@ -227,6 +257,7 @@ const Dashboard = ()=>{
             handleEditPart={handleEditPart}
             handleCheckTotal={handleCheckTotal}
             handleRepack={handleRepack}
+            handleCheckDuplicate={handleCheckDuplicate}
             />
 
           <button onClick={handleSubmit} className="submit" disabled={!isPartsClicked}>Submit</button>

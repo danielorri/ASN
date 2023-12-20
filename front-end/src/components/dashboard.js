@@ -153,7 +153,11 @@ const Dashboard = ()=>{
         cookies: document.cookie, // Replace with your actual cookie data
       };
 
-      // Send a POST request to the server
+      if(parts[0].customized.length === 0){
+        alert("Repack before submitting.");
+      } else{
+
+        // Send a POST request to the server
       const response = await fetch("http://localhost:3010/buildASN", {
         method: "POST",
         headers: {
@@ -171,6 +175,9 @@ const Dashboard = ()=>{
         // Handle error responses
         setServerResponse("Error: Failed to submit data to the server");
       }
+      }
+
+      
     } catch (error) {
       // Handle any network or other errors
       console.error("Error:", error);

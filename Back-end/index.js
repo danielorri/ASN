@@ -9,6 +9,9 @@ const repackItems = require("./functions/reapackItems");
 const sql = require("mssql/msnodesqlv8");
 
 var dbConnect = require("./dbConnect");
+const loginElextrolux = require("./functions/Electrolux/ElectroluxLogin");
+const startASPElectrolux = require("./functions/Electrolux/ASP/startASPElectrolux");
+const pickPartsElectrolux = require("./functions/Electrolux/pickPartsElectrolux");
 
 
 const app = express();
@@ -92,6 +95,27 @@ ORDER BY ORDR.DocNum
   }
 });
 
+app.post("/buildASPElectrolux", async(req, res) => {
+  const { parts, shipping } = req.body;
+  console.log("starting...");
+
+  const browser = await puppeteer.launch({
+    headless: false,
+    defaultViewport: false
+  });
+
+  const page = await browser.newPage();
+
+  await page.goto('https://supplierportal.electrolux-na.com/', { waitUntil: "load" });
+
+  // Login
+  await loginElextrolux(page, "dione.heppner@shamrockif.com", "Shamrock1475");
+  
+  await startASPElectrolux(page, parts, shipping);
+
+  await pickPartsElectrolux(page, parts.slice(0, -1));
+
+});
 
 
 app.post("/buildASN", async(req, res) => {

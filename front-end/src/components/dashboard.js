@@ -143,6 +143,46 @@ const Dashboard = ()=>{
       // State to store the response from the server
   const [serverResponse, setServerResponse] = useState("");
 
+  const handleElectroluxAspSubmit = async () => {
+    try {
+      // Prepare the data to send to the server
+      const dataToSend = {
+        parts,
+        shipping,
+      };
+
+      if(parts[0].customized.length === 0){
+        alert("Repack before submitting.");
+      } else{
+
+        // Send a POST request to the server
+      const response = await fetch("http://localhost:3010/buildASPElectrolux", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dataToSend),
+      });
+
+      // Check if the response is successful (you can modify the condition)
+      if (response.status === 200) {
+        const responseData = await response.json();
+        // Handle the response data as needed
+        setServerResponse(responseData.message);
+      } else {
+        // Handle error responses
+        setServerResponse("Error: Failed to submit data to the server");
+      }
+      }
+
+      
+    } catch (error) {
+      // Handle any network or other errors
+      console.error("Error:", error);
+      setServerResponse("Error: Something went wrong");
+    }
+  };
+
   // Function to handle the submit button click
   const handleSubmit = async () => {
     try {
@@ -268,6 +308,7 @@ const Dashboard = ()=>{
             />
 
           <button onClick={handleSubmit} className="submit" disabled={!isPartsClicked}>Submit</button>
+          <button onClick={handleElectroluxAspSubmit} className="submit" disabled={!isPartsClicked}>Submit ASP Electrolux</button>
 
           {serverResponse && <p>Server Response: {serverResponse}</p>}
           {/* {progress && <p>Progress: {progress}</p> }

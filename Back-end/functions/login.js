@@ -5,8 +5,8 @@ const login = async (page, username, password, sendUpdateToClients ) => {
     await page.waitForSelector('#userid');
     await page.type('#userid', username);
 
-    await page.waitForSelector('#_czgbx > div > span');
-    await page.click('#_czgbx > div > span');
+    await page.waitForSelector('#_cx6t_');
+    await page.click('#_cx6t_');
 
     await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
 
@@ -17,8 +17,8 @@ const login = async (page, username, password, sendUpdateToClients ) => {
 
     // You can add additional login actions here, such as clicking the login button.
     // Find and click the "Login" button by its value or attribute
-    await page.waitForSelector('#_7bsq2d > div.loginFormBox > table > tbody > tr:nth-child(4) > td > input');
-    await page.click('#_7bsq2d > div.loginFormBox > table > tbody > tr:nth-child(4) > td > input');
+    await page.waitForSelector('#_5jy2dd > div.loginFormBox > table > tbody > tr:nth-child(4) > td > input');
+    await page.click('#_5jy2dd > div.loginFormBox > table > tbody > tr:nth-child(4) > td > input');
     // Return a promise or data indicating the login status if necessary.
 };
 

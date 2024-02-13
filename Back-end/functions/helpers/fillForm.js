@@ -7,9 +7,9 @@ const fillForm = async(page, shipping) =>{
    while (retries < maxRetries && !isClicked) {
      try {
        // Wait for the input fields to appear
-        await page.waitForSelector('input#_wfykid');
-        await page.waitForSelector('input#DF_s\\$hwqd');
-        await page.waitForSelector('input#DF_w3xz2c');
+        await page.waitForSelector('#_4t8sed');
+        await page.waitForSelector('#DF_7ldr3');
+        await page.waitForSelector('#DF_ptnsub');
        // Element clicked and navigation completed successfully
        isClicked= true;
      } catch (error) {
@@ -21,13 +21,13 @@ const fillForm = async(page, shipping) =>{
      }
    }
     // Type the PackingSLipID into the first input field
-    await page.type('input#_wfykid', shipping.PackingSLipID);
+    await page.type('#_4t8sed', shipping.PackingSLipID);
 
     // Type the shipping.ShippingDate into the second input field
-    await page.type('input#DF_s\\$hwqd', shipping.ShippingDate);
+    await page.type('#DF_7ldr3', shipping.ShippingDate);
 
     // Type the shipping.DeliveryDate into the third input field
-    await page.type('input#DF_w3xz2c', shipping.DeliveryDate);
+    await page.type('#DF_ptnsub', shipping.DeliveryDate);
 
     await page.waitForSelector('div#__fxv4c');
 

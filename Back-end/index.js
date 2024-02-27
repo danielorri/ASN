@@ -13,11 +13,14 @@ const loginElextrolux = require("./functions/Electrolux/ElectroluxLogin");
 const startASPElectrolux = require("./functions/Electrolux/ASP/startASPElectrolux");
 const pickPartsElectrolux = require("./functions/Electrolux/pickPartsElectrolux");
 
+//routes
+const dailyOrdersAPI = require('./Routes/dailyOrders');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.use('/dailyorders', dailyOrdersAPI);
 
 app.get('/', async (req, res) => {
   try {

@@ -89,6 +89,7 @@ const ShippingForm =(props)=>{
                     ></input>
             </div>
             </div>
+            <button onClick={props.handleGetParts} className="getParts">Get Parts</button>
         </div>
     )
 };

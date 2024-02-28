@@ -40,3 +40,12 @@
     color: white;
     cursor: pointer;
 }
+
+.getParts{
+    margin-top: 1rem;
+    padding: 3px;
+    background-color: rgb(206, 145, 31);
+    color: white;
+    border-radius: 5px;
+    width: 5rem;
+}

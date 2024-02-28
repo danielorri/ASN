@@ -16,7 +16,7 @@ const startASN = async (page, initialPart, shipping) => {
     try {
       await page.waitForSelector('li.w-tabitem a#_5b8awc'); // Wait for the element to appear with a 5-second timeout
       await page.click('li.w-tabitem a#_5b8awc'); // Click the element
-      await page.waitForNavigation({ waitUntil: 'domcontentloaded' }); // Wait for navigation
+      await page.waitForNavigation({ waitUntil: 'networkidle2' }); // Wait for navigation
 
       // Element clicked and navigation completed successfully
       isClicked = true;
@@ -48,6 +48,16 @@ const startASN = async (page, initialPart, shipping) => {
         // Compare the plantCodeText with shipping.PlantCode
         if (plantCodeText.includes(shipping.PlantCode)) {
           // The plantCode matches shipping.PlantCode
+          if (shipping.ShipTo != "10") {
+            if (!partNumber.startsWith('V')) {
+              const clickableElement = await row.$('td'); // You can adjust the selector to find the clickable element
+              if (clickableElement) {
+                await clickableElement.click();
+                console.log(`Part no.${initialPart.partNo} selected`);
+                return true;
+              }
+          }
+        }
           // Add your logic here
           if (shipping.ShipTo === "10") {
             // Find a clickable element within the row and click it
@@ -59,14 +69,7 @@ const startASN = async (page, initialPart, shipping) => {
                 return true;
               }
             }
-          } else {
-            const clickableElement = await row.$('td'); // You can adjust the selector to find the clickable element
-            if (clickableElement) {
-              await clickableElement.click();
-              console.log(`Part no.${initialPart.partNo} selected`);
-              return true;
-            }
-          }
+          } 
         } else {
           console.log(`Part no.${initialPart.partNo} not found`);
         }
@@ -90,7 +93,6 @@ const startASN = async (page, initialPart, shipping) => {
         }// Break out of the loop on successful row processing
     } catch (error) {
       console.log("Part not found");
-      
       const elements = await page.$$('span.w-togglebox-icon-off');
     
     if (elements.length > 0) {
@@ -98,6 +100,7 @@ const startASN = async (page, initialPart, shipping) => {
       for (const element of elements) {
         await element.click();
       }
+
     } else {
       const today = new Date();
       const startDate = new Date(today.getFullYear(), today.getMonth() + retries2, 0);

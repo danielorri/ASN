@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import PartForm from "../forms/partsForm";
 import ShippingForm from "../forms/shippingForm";
 import Repack from "../FunctionHelpers/repackFunction";
+import getParts from "../FunctionHelpers/getParts";
 
 const Dashboard = ()=>{
   // const [progress, setProgress] = useState(0);
@@ -23,6 +24,7 @@ const Dashboard = ()=>{
         ShipTo: ""
     };
     const [shipping, setShipping] = useState(initialShippingValues);
+    const [isPartsClicked, setIsPartsClicked] = useState(true);
 
     const handleShippingChange = (e) =>{
         const { name, value }= e.target;
@@ -40,6 +42,7 @@ const Dashboard = ()=>{
         quantity: "",
         mixedOrMaster: "Mixed",
         repackedQuantity: "",
+        isDuplicate: false,
         customized:[]
       };
     
@@ -62,6 +65,7 @@ const Dashboard = ()=>{
                 quantity: "",
                 mixedOrMaster: "Mixed",
                 repackedQuantity: "",
+                isDuplicate: false,
                 customized:[]
               });
           }
@@ -139,6 +143,46 @@ const Dashboard = ()=>{
       // State to store the response from the server
   const [serverResponse, setServerResponse] = useState("");
 
+  const handleElectroluxAspSubmit = async () => {
+    try {
+      // Prepare the data to send to the server
+      const dataToSend = {
+        parts,
+        shipping,
+      };
+
+      if(parts[0].customized.length === 0){
+        alert("Repack before submitting.");
+      } else{
+
+        // Send a POST request to the server
+      const response = await fetch("http://localhost:3010/buildASPElectrolux", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dataToSend),
+      });
+
+      // Check if the response is successful (you can modify the condition)
+      if (response.status === 200) {
+        const responseData = await response.json();
+        // Handle the response data as needed
+        setServerResponse(responseData.message);
+      } else {
+        // Handle error responses
+        setServerResponse("Error: Failed to submit data to the server");
+      }
+      }
+
+      
+    } catch (error) {
+      // Handle any network or other errors
+      console.error("Error:", error);
+      setServerResponse("Error: Something went wrong");
+    }
+  };
+
   // Function to handle the submit button click
   const handleSubmit = async () => {
     try {
@@ -149,7 +193,11 @@ const Dashboard = ()=>{
         cookies: document.cookie, // Replace with your actual cookie data
       };
 
-      // Send a POST request to the server
+      if(parts[0].customized.length === 0){
+        alert("Repack before submitting.");
+      } else{
+
+        // Send a POST request to the server
       const response = await fetch("http://localhost:3010/buildASN", {
         method: "POST",
         headers: {
@@ -167,6 +215,9 @@ const Dashboard = ()=>{
         // Handle error responses
         setServerResponse("Error: Failed to submit data to the server");
       }
+      }
+
+      
     } catch (error) {
       // Handle any network or other errors
       console.error("Error:", error);
@@ -174,11 +225,75 @@ const Dashboard = ()=>{
     }
   };
 
+  //get Parts
+  const handleGetParts = async () => {
+    try {
+      const orders = await getParts(shipping);
+
+      const transformedParts = orders.flatMap(order => {
+        const isMixed = order.Parts.length === 1;
+        const mixedOrMaster = isMixed ? "Master" : "Mixed";
+
+        return order.Parts.map(part => ({
+          partNo: part.CustomerPart,
+          quantity: part.PartQuantity,
+          mixedOrMaster,
+          repackedQuantity: part.PartQuantity,
+          isDuplicate: false,
+          customized: [],
+        }));
+      });
+
+      // Add an empty object to the transformedParts array
+      transformedParts.push({
+        partNo: "",
+        quantity: "",
+        mixedOrMaster: "Mixed",
+        repackedQuantity: "",
+        isDuplicate: false,
+        customized: [],
+      });
+
+      setParts(transformedParts);
+      setIsPartsClicked(true);
+    } catch (error) {
+      console.error('Error fetching parts:', error);
+      // Handle errors as needed
+    }
+  };
+
+  const handleCheckDuplicate = () => {
+    const partNos = new Set();
+    const duplicatePartNos = new Set();
+  
+    // Iterate through all parts to check for duplicates
+    parts.forEach((part) => {
+      const { partNo } = part;
+  
+      if (partNos.has(partNo)) {
+        duplicatePartNos.add(partNo);
+      } else {
+        partNos.add(partNo);
+      }
+    });
+  
+    // Update state to mark duplicates
+    const updatedParts = parts.map((part) => ({
+      ...part,
+      isDuplicate: duplicatePartNos.has(part.partNo),
+    }));
+  
+    // Update the state with the new information
+    setParts(updatedParts);
+  };
+  
+
     return(
         <div>
             <ShippingForm 
             shipping ={shipping}
             handleChange ={handleShippingChange}
+            handleGetParts={handleGetParts}
             />
             <PartForm
             handleInputChange={handleInputChange}
@@ -189,9 +304,11 @@ const Dashboard = ()=>{
             handleEditPart={handleEditPart}
             handleCheckTotal={handleCheckTotal}
             handleRepack={handleRepack}
+            handleCheckDuplicate={handleCheckDuplicate}
             />
 
-          <button onClick={handleSubmit} className="submit">Submit</button>
+          <button onClick={handleSubmit} className="submit" disabled={!isPartsClicked}>Submit</button>
+          <button onClick={handleElectroluxAspSubmit} className="submit" disabled={!isPartsClicked}>Submit ASP Electrolux</button>
 
           {serverResponse && <p>Server Response: {serverResponse}</p>}
           {/* {progress && <p>Progress: {progress}</p> }

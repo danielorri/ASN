@@ -34,3 +34,11 @@
     font-weight: 600;
     border-radius: 5px;
 }
+
+.submit:disabled{
+    background-color: #CCC;
+}
+
+.ctnCount{
+    font-weight: 600;
+}

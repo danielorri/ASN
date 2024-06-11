@@ -1,15 +1,38 @@
-// yourRoute.js
+
 const express = require('express');
 const router = express.Router();
 var dbConnect = require('../dbConnect');
+const fs = require('fs');
+const fastcsv = require('fast-csv');
 
 
 router.get('/', async (req, res) => {
   try {
     const pool = await dbConnect;
 
-    const shipDate = req.query.shipDate 
+    const shipDate = req.query.shipDate;
 
+    const readCsv = (filePath) => {
+        return new Promise((resolve, reject) => {
+            let data = [];
+            fs.createReadStream(filePath)
+                .pipe(fastcsv.parse({ headers: true }))
+                .on('error', error => reject(error))
+                .on('data', row => data.push(row))
+                .on('end', () => resolve(data));
+        });
+    };
+    
+    const csvFilePath = 's:\\WHSE\\Whse Tools\\DailyOrdersData\\daily_orders_data.csv';
+    const csvData = await readCsv(csvFilePath);
+    // Filter data based on shipDate after reading all data
+    const mainCsvData = csvData.filter(row => row.ShipDate.includes(shipDate));
+    const filteredCsvData = mainCsvData.map(row => ({
+        ...row,
+        'Picklist Status': row['Picklist Status'] !== 'Not Allocated' ? 'Shipped' : row['Picklist Status']
+    }));
+    
+    // Step 1: Read and filter the CSV data
     const result = await pool.request().input('shipDate1', shipDate) .query(`
     SELECT 
     ordr.DocNum,
@@ -47,6 +70,7 @@ router.get('/', async (req, res) => {
                 WHEN PMX_PLHE.PickListStatus = 'N' THEN 'Not Ready'
                 WHEN PMX_PLHE.PickListStatus = 'K' THEN 'Picked'
                 WHEN PMX_PLHE.PickListStatus = 'I' THEN 'Partially Picked'
+                WHEN PMX_PLHE.PickListStatus = 'S' THEN 'Shipped'
             END
         FROM PMX_PLPL 
         LEFT JOIN PMX_PLLI ON PMX_PLPL.LineNum = PMX_PLLI.BaseLine AND PMX_PLPL.DocEntry = PMX_PLLI.BaseEntry AND PMX_PLLI.LineStatus = 'O'
@@ -148,12 +172,111 @@ ORDER BY
     ordr.ShipToCode, ordr.DocNum;
     `);
 
-    // Send the result as JSON response
-    res.json(result.recordsets[0]);
+    const dbData = result.recordsets[0];
+    const combinedData = [...filteredCsvData];
+    dbData.forEach(dbRecord => {
+        const foundIndex = filteredCsvData.findIndex(csvRecord => 
+            csvRecord.DocNum === dbRecord.DocNum.toString().trim()
+        );
+    
+        if (foundIndex !== -1) {
+            // If found, update the 'Status' field of the corresponding record in combinedData
+            combinedData[foundIndex] = {
+                ...combinedData[foundIndex],
+                'Picklist Status': dbRecord['Picklist Status'] // Assuming 'Status' is the field you want to update from dbRecord
+            };
+        } else {
+            // If not found, add the dbRecord to combinedData
+            combinedData.push(dbRecord);
+        }
+    });
+
+    res.json(combinedData);
   } catch (error) {
     console.error('Error executing SQL query:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
+router.post('/insert-csv', async(req, res) => {
+    const newData = req.body;
+    // Validate newData here, ensure it has all the required fields
+    const csvFilePath = 's:\\WHSE\\Whse Tools\\DailyOrdersData\\daily_orders_data.csv';
+    let csvData = [];  // Initialize csvData
+
+    const readCsv = (filePath) => {
+        return new Promise((resolve, reject) => {
+            const stream = fs.createReadStream(filePath);
+            let data = [];
+    
+            stream
+                .pipe(fastcsv.parse({ headers: true }))
+                .on('error', (error) => {
+                    console.log("Error while reading CSV:", error);
+                    stream.close(); // Close the stream on error
+                    reject(error);
+                })
+                .on('data', (row) => {
+                    data.push(row);
+                })
+                .on('end', () => {
+                    stream.close(); // Ensure to close the stream
+                    resolve(data);
+                });
+        });
+    };
+    
+    // Read CSV data
+    csvData = await readCsv(csvFilePath);
+
+   
+        // Process newData - assuming it is an array of objects
+        newData.forEach(updateData => {
+            updateData.DocNum = updateData.DocNum.toString().trim();
+            // console.log(`Processing update for DocNum: '${updateData.DocNum}'`);
+
+            // Use manual method to find the index
+            let foundIndex = -1;
+            for (let i = 0; i < csvData.length; i++) {
+                if (csvData[i].DocNum === updateData.DocNum) {
+                    foundIndex = i;
+                    // console.log(`Match found for DocNum: '${csvData[i].DocNum}' at index: ${i}`);
+                }
+            }
+
+            if (foundIndex !== -1) {
+                csvData[foundIndex] = { ...csvData[foundIndex], ...updateData };
+                // console.log(csvData[foundIndex]);
+            } else {
+                // console.log(`No match found. Adding new entry for DocNum: '${updateData.DocNum}'`);
+                csvData.push(updateData);
+            }
+    });
+    // Write the updated data back to the CSV file
+    const ws = fs.createWriteStream(csvFilePath);
+    let responseSent = false; // Flag to control response status
+
+    const stream = fastcsv
+        .write(csvData, { headers: true, includeEndRowDelimiter: true })
+        .pipe(ws);
+
+    stream.on('finish', () => {
+        if (!responseSent) {
+            res.status(200).json(newData);
+            responseSent = true;
+            stream.close(); // Ensure to close the stream
+        }
+    });
+
+    stream.on('error', error => {
+        console.error('Stream error:', error);
+        if (!responseSent) {
+            res.status(500).send("Error writing CSV");
+            responseSent = true;
+            stream.close(); // Ensure to close the stream
+        }
+    });
+});
+
 
 module.exports = router;

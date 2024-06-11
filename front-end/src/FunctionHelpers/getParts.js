@@ -1,6 +1,6 @@
 const getParts = async(shipping) =>{
     try {
-        const response = await fetch('http://localhost:3010/getParts', {
+        const response = await fetch('http://10.100.111.10:3010/getParts', {
           method: 'POST', // Assuming your server expects a POST request
           headers: {
             'Content-Type': 'application/json',

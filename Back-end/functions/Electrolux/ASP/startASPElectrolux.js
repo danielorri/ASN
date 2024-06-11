@@ -7,6 +7,8 @@ const startASPElectrolux = async (page, parts, shipping) => {
     await page.waitForTimeout(1000);
     await page.waitForSelector('#factory-key > div > div.mat-select-arrow-wrapper');
     await page.click('#factory-key > div > div.mat-select-arrow-wrapper');
+
+    await page.waitForSelector('#cdk-overlay-0 > div > div > mat-option');
     
     if(shipping.Customer === '9676'){
         await page.waitForSelector('#mat-option-4');
@@ -16,10 +18,10 @@ const startASPElectrolux = async (page, parts, shipping) => {
         await page.click('#mat-option-7');
     } else if (shipping.Customer === '10105'){
         await page.waitForSelector('#mat-option-5');
-        await page.click('#mat-option-7');
+        await page.click('#mat-option-5');
     } else if (shipping.Customer === '9675'){
         await page.waitForSelector('#mat-option-6');
-        await page.click('#mat-option-7');
+        await page.click('#mat-option-6');
     }
 
     await page.waitForTimeout(1000);

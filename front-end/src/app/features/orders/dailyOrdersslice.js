@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { fetchDailyOrders } from './dailyOrdersAsyncthunk';
+import { fetchDailyOrders, updateCsvData } from './dailyOrdersAsyncthunk';
 
 const dailyOrdersSlice = createSlice({
   name: 'dailyOrders',
@@ -21,6 +21,18 @@ const dailyOrdersSlice = createSlice({
       state.data = action.payload;
     });
     builder.addCase(fetchDailyOrders.rejected, (state, action) => {
+      state.status = 'failed';
+      state.error = action.error.message;
+    });
+    builder.addCase(updateCsvData.pending, (state) => {
+      state.status = 'loading';
+    });
+    builder.addCase(updateCsvData.fulfilled, (state, action) => {
+      
+      state.status = 'succeeded';
+      state.data = action.payload;
+    });
+    builder.addCase(updateCsvData.rejected, (state, action) => {
       state.status = 'failed';
       state.error = action.error.message;
     });

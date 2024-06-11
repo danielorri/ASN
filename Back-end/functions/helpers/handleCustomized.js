@@ -1,4 +1,8 @@
-const handleCustomized = async (page, parts) => {
+const { getIo } = require("../../socketManager");
+
+
+const handleCustomized = async (page, parts, socketId) => {
+  const io = getIo();
   await page.waitForSelector('input.ui-editable-column.input.ng-untouched.ng-pristine');
   const elements = await page.$$('input.ui-editable-column.input.ng-untouched.ng-pristine');
 
@@ -16,9 +20,9 @@ const handleCustomized = async (page, parts) => {
    for(let i = 0; i < parts.length; i++){
     innerLoop:for(let j = 0; j < parts[i].customized.length; j++){
       if(parseInt(values[count]) === parseInt(parts[i].customized[j])){
-        console.log(`${values[count]} is equal to ${parts[i].customized[j]}`);
+        io.to(socketId).emit('progressUpdate', { message: `${values[count]} is equal to ${parts[i].customized[j]}`, progress: 83 });
       }else{
-        console.log(`${values[count]} is different to ${parts[i].customized[j]}`);
+        io.to(socketId).emit('progressUpdate', { message: `${values[count]} is different to ${parts[i].customized[j]}`, progress: 83 });
         count += parts[i].customized.length - j;
         await page.waitForSelector('input.ui-dropdown-button.ui-button-70');
         const buttons = await page.$$('input.ui-dropdown-button.ui-button-70');

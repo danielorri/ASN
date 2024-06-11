@@ -1,5 +1,9 @@
-const repack = async(page, parts) =>{
-    console.log("Repacking");
+const { getIo } = require("../../socketManager");
+
+
+const repack = async(page, parts, socketId) =>{
+    const io = getIo();
+    io.to(socketId).emit('progressUpdate', { message: 'Starting repacking', progress: 80 });
     await page.waitForNavigation({ waitUntil: 'networkidle0', timeout: 0  });
     
     await page.waitForSelector('label.ui-dropdown-label');

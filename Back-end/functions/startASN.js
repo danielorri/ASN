@@ -1,12 +1,15 @@
 const fillForm = require("./helpers/fillForm");
+const { getIo } = require("../socketManager"); 
 
-const startASN = async (page, initialPart, shipping) => {
+
+const startASN = async (page, initialPart, shipping, pan1, pan2, socketId) => {
+  const io = getIo();
+        
   await page.waitForNavigation({ waitUntil: 'domcontentloaded' }); // Wait for navigation
-  await page.waitForSelector('#search-btn-id');
+  await page.waitForSelector('body > app-root > div > app-dashboard > div > div > app-home > div > div.search-container > app-search-bar > div > div.search-button-container > button');
   // Click the search button
-  await page.click('#search-btn-id');
+  await page.click('body > app-root > div > app-dashboard > div > div > app-home > div > div.search-container > app-search-bar > div > div.search-button-container > button');
 
-  console.log("logged in successful");
   // Assuming you have already navigated to the target page in your Puppeteer script
   const maxRetries = 3;
   let retries = 0;
@@ -21,7 +24,7 @@ const startASN = async (page, initialPart, shipping) => {
       // Element clicked and navigation completed successfully
       isClicked = true;
     } catch (error) {
-      console.error(`Attempt ${retries + 1}: Element not found or could not be clicked. Error: ${error.message}`);
+      io.to(socketId).emit('progressUpdate', { message: 'Reloading Page', progress: 6 });
       retries++;
 
       // You can add a page reload here if needed
@@ -29,7 +32,7 @@ const startASN = async (page, initialPart, shipping) => {
     }
   }
 
-  console.log("starting ASN");
+  
   await page.waitForSelector('input#_djckb'); // Wait for the input field to appear
   await page.type('input#_djckb', initialPart.partNo);
 
@@ -39,9 +42,9 @@ const startASN = async (page, initialPart, shipping) => {
   async function processRows() {
     const rows = await page.$$('tr.tableRow1');
     for (const row of rows) {
-      const partNumberElement = await row.$('td:nth-child(7) a');
+      const partNumberElement = await row.$(`td:nth-child(${pan1}) a`);
       const partNumber = await partNumberElement.evaluate((element) => element.textContent.trim());
-      const plantCode = await row.$('td:nth-child(15)');
+      const plantCode = await row.$(`td:nth-child(${pan2})`);
       if (plantCode) {
         // Use evaluate to get the text content of the plantCode element
         const plantCodeText = await plantCode.evaluate((element) => element.textContent.trim());
@@ -53,7 +56,7 @@ const startASN = async (page, initialPart, shipping) => {
               const clickableElement = await row.$('td'); // You can adjust the selector to find the clickable element
               if (clickableElement) {
                 await clickableElement.click();
-                console.log(`Part no.${initialPart.partNo} selected`);
+                io.to(socketId).emit('progressUpdate', { message: `Part no.${initialPart.partNo} selected`, progress: 7 });
                 return true;
               }
           }
@@ -65,16 +68,16 @@ const startASN = async (page, initialPart, shipping) => {
               const clickableElement = await row.$('td'); // You can adjust the selector to find the clickable element
               if (clickableElement) {
                 await clickableElement.click();
-                console.log(`Part no.${initialPart.partNo} selected`);
+                io.to(socketId).emit('progressUpdate', { message: `Part no.${initialPart.partNo} selected`, progress: 7 });
                 return true;
               }
             }
           } 
         } else {
-          console.log(`Part no.${initialPart.partNo} not found`);
+          io.to(socketId).emit('progressUpdate', { message: `Part no.${initialPart.partNo} not found`, progress: 7 });
         }
       } else {
-         console.log(`Part no.${initialPart.partNo} not found`);
+        io.to(socketId).emit('progressUpdate', { message: `Part no.${initialPart.partNo} not found`, progress: 7 });
       }
     }
   }
@@ -89,10 +92,10 @@ const startASN = async (page, initialPart, shipping) => {
         if(res === true){
             break; // Break out of the loop on successful row processing
         } else {
-            throw new Error("Part not found");
-        }// Break out of the loop on successful row processing
+          io.to(socketId).emit('progressUpdate', { message: `Part no.${initialPart.partNo} not found`, progress: 7 });
+        }
     } catch (error) {
-      console.log("Part not found");
+      io.to(socketId).emit('progressUpdate', { message: `Part no.${initialPart.partNo} not found`, progress: 7 });
       const elements = await page.$$('span.w-togglebox-icon-off');
     
     if (elements.length > 0) {
@@ -129,7 +132,7 @@ const startASN = async (page, initialPart, shipping) => {
         return `${month}/${day}/${year}`;
       }
       retries2++;
-      console.log(`changing date ${retries2}`);
+      io.to(socketId).emit('progressUpdate', { message: `Changing date ${startDate} - ${endDate}`, progress: 7 });
     }
     }
   }
@@ -137,7 +140,7 @@ const startASN = async (page, initialPart, shipping) => {
   await page.waitForSelector('button#_skczv');
   await page.click('button#_skczv');
 
-  await fillForm(page, shipping);
+  await fillForm(page, shipping, socketId);
 };
 
 module.exports = startASN;

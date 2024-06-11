@@ -9,6 +9,7 @@ const ShippingForm =(props)=>{
         return `${month}/${day}/${year.slice(2)}`;
       };
 
+      const today = props.today;
     return(
         <div className="Form">
             <h2>Shipping Details</h2>
@@ -29,21 +30,28 @@ const ShippingForm =(props)=>{
                             props.handleChange(e);
                         }}
                     />
-                    <label htmlFor="DeliveryDateInput">Delivery Date</label>
-                    <input 
-                    type="date"
-                    value={DeliveryDate}
-                    name="DeliveryDate"
-                    id="DeliveryDateInput"
-                    onChange={props.handleChange}
-                    onFocus={(e) => (e.target.type = 'date')}
-                    onBlur={(e) => {
-                        e.target.type = 'text';
-                        const formattedDate = formatDate(e.target.value);
-                        e.target.value = formattedDate;
-                        props.handleChange(e);
-                    }}
-                    ></input>
+                    {Customer === '9675' && ShippingDate !== today || Customer === '9676' && ShippingDate !== today || Customer === '10105' && ShippingDate !== today || Customer === '10053' &&
+                    ShippingDate !== today || Customer !== '9675' ?
+                    <div>
+                        <label htmlFor="DeliveryDateInput">Delivery Date</label>
+                        <input 
+                        type="date"
+                        value={DeliveryDate}
+                        name="DeliveryDate"
+                        id="DeliveryDateInput"
+                        onChange={props.handleChange}
+                        onFocus={(e) => (e.target.type = 'date')}
+                        onBlur={(e) => {
+                            e.target.type = 'text';
+                            const formattedDate = formatDate(e.target.value);
+                            e.target.value = formattedDate;
+                            props.handleChange(e);
+                        }}
+                        ></input>
+                    </div> : ''}
+                    {Customer === '9675' && ShippingDate === today || Customer === '9676' && ShippingDate === today || Customer === '10105' && ShippingDate === today || Customer === '10053' &&
+                    ShippingDate === today || Customer === '9600' || Customer === '3899' || Customer === '3896' || Customer === '3895' || Customer === '3894' || Customer === ''?
+                    <div>
                     <label htmlFor="PackingSLipIDInput">Packing Slip ID</label>
                     <input 
                     value={PackingSLipID}
@@ -51,14 +59,19 @@ const ShippingForm =(props)=>{
                     id="PackingSLipIDInput"
                     onChange={props.handleChange}
                     ></input>
+                    </div> : ''}
+                    {Customer === '9675'|| Customer === '9676' || Customer === '10105'|| Customer === '10053'? '':
+                    <div>
                     <label htmlFor="CarrierNameInput">Carrier Name</label>
                     <Dropdown 
                     value={CarrierName}
                     name="CarrierName"
                     id='CarrierNameInput'
-                    onChange={props.handleChange} />
+                    onChange={props.handleChange} /> </div>}
                 </div>
             <div>
+            {Customer === '9675'|| Customer === '9676' || Customer === '10105'|| Customer === '10053'?
+                '': <div>
                 <label htmlFor="TrackingNoInput">Tracking No.</label>
                     <input 
                     value={TrackingNo}
@@ -72,7 +85,7 @@ const ShippingForm =(props)=>{
                     name="PlantCode"
                     id="PlantCodeInput"
                     onChange={props.handleChange}
-                    ></input>
+                    ></input> </div>}
                     <label htmlFor="CustomerInput">Customer</label>
                     <input 
                     value={Customer}

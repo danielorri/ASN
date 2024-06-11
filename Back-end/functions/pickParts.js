@@ -1,10 +1,16 @@
-const pickParts = async(page, parts, shipping) =>{
+const { getIo } = require("../socketManager");
+
+
+const pickParts = async(page, parts, shipping, pan1, pan2, socketId) =>{
   try {
+    const eachPorcentage = 60 / parts.lenght;
+    let pt = 10;
+    const io = getIo();
     for (const part of parts){
       if (!part.partNo || part.partNo.trim() === "") {
         continue; // Skip this part
     }
-    await start(part, shipping);
+    await start(part, shipping, io, pt, eachPorcentage, pan1, pan2, socketId);
     }
   } catch (error) {
     await page.goto('https://mu.ariba.com/dashboard/home', { waitUntil: "load" });
@@ -35,8 +41,8 @@ const pickParts = async(page, parts, shipping) =>{
 
   }
 
-  async function start(part, shipping){
-        console.log(`Looking Part no.${part.partNo} ...`);
+  async function start(part, shipping, io, pt, eachPorcentage, pan1, pan2){
+      io.to(socketId).emit('progressUpdate', { message: `Looking Part no.${part.partNo} ...`, progress: pt + eachPorcentage/2 });
        await page.waitForNavigation({ waitUntil: 'networkidle2' , timeout: 0}); // Wait for navigation
    
         // Wait for the "Add Order Line Item" button to be present
@@ -60,10 +66,10 @@ const pickParts = async(page, parts, shipping) =>{
       async function processRows() {
           const rows = await page.$$('tr.tableRow1');
           for (const row of rows) {
-            const partNumberElement = await row.$('td:nth-child(7) a');
+            const partNumberElement = await row.$(`td:nth-child(${pan1}) a`);
             if(partNumberElement){
               const partNumber = await partNumberElement.evaluate((element) => element.textContent.trim());
-              const plantCode = await row.$('td:nth-child(15)');
+              const plantCode = await row.$(`td:nth-child(${pan2})`);
               if (plantCode) {
                   // Use evaluate to get the text content of the plantCode element
                   const plantCodeText = await plantCode.evaluate((element) => element.textContent.trim());
@@ -77,7 +83,7 @@ const pickParts = async(page, parts, shipping) =>{
                       const clickableElement = await row.$('td'); // You can adjust the selector to find the clickable element
                       if (clickableElement) {
                           await clickableElement.click();
-                          console.log(`Part no.${part.partNo} selected`);
+                          io.to(socketId).emit('progressUpdate', { message: `Part no.${part.partNo} selected`, progress: pt + eachPorcentage/2 });
                           return true;
                       }
                       }
@@ -85,15 +91,15 @@ const pickParts = async(page, parts, shipping) =>{
                       const clickableElement = await row.$('td'); // You can adjust the selector to find the clickable element
                       if (clickableElement) {
                       await clickableElement.click();
-                      console.log(`Part no.${part.partNo} selected`);
+                      io.to(socketId).emit('progressUpdate', { message: `Part no.${part.partNo} selected`, progress: pt + eachPorcentage/2 });
                       return true;
                       }
                   }
                   } else {
-                    console.log(`Part no.${part.partNo} not found`);
+                    io.to(socketId).emit('progressUpdate', { message: `Part no.${part.partNo} not found`, progress: pt });
                   }
               } else {
-                console.log(`Part no.${part.partNo} not found`);
+                io.to(socketId).emit('progressUpdate', { message: `Part no.${part.partNo} not found`, progress: pt });
                  
               }
             } else {
@@ -112,10 +118,10 @@ const pickParts = async(page, parts, shipping) =>{
               if(res === true){
                   break; // Break out of the loop on successful row processing
               } else {
-                  throw new Error("Part not found");
+                io.to(socketId).emit('progressUpdate', { message: `Part not found`, progress: pt });
               }
           } catch (error) {
-              console.log(`Part no.${part.partNo} not found`);
+            io.to(socketId).emit('progressUpdate', { message: `Part not found`, progress: pt });
               const today = new Date();
               const startDate = new Date(today.getFullYear(), today.getMonth() + retries2, 0);
               const endDate = new Date(today.getFullYear(), today.getMonth() + retries2 + 1, 0);
@@ -143,7 +149,7 @@ const pickParts = async(page, parts, shipping) =>{
               return `${month}/${day}/${year}`;
             }
             retries2++;
-            console.log(`changing date ${retries2}`);
+            io.to(socketId).emit('progressUpdate', { message: `Changing date ${startDate} - ${endDate}`, progress: pt });
           }
         }
   

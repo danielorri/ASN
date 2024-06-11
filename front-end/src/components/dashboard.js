@@ -1,16 +1,24 @@
 import { useState, useEffect } from "react";
+import io from "socket.io-client";
 import PartForm from "../forms/partsForm";
 import ShippingForm from "../forms/shippingForm";
 import Repack from "../FunctionHelpers/repackFunction";
 import getParts from "../FunctionHelpers/getParts";
+import ProgressCenteredModal from "./progressModal";
+import LoginComponent from "./LoginComponents/LonginComponent";
+import { useNavigate } from 'react-router-dom';
+
+const socket = io("http://10.100.111.10:3010");
+let socketId; // Variable to store the socket.id
+
+socket.on("connect", () => {
+  socketId = socket.id;
+});
 
 const Dashboard = ()=>{
-  // const [progress, setProgress] = useState(0);
-  // const [message, setMessage] = useState("");
-
-  useEffect(() => {
-   
-  }, []); 
+  const [progress, setProgress] = useState(0);
+  const [modalShow, setModalShow] = useState(false);
+  const [messages, setMessages] = useState([]);
 
     //Shipping
     const initialShippingValues= {
@@ -25,6 +33,7 @@ const Dashboard = ()=>{
     };
     const [shipping, setShipping] = useState(initialShippingValues);
     const [isPartsClicked, setIsPartsClicked] = useState(true);
+    const [isDuplicates, setIsDuplicates] = useState(false);
 
     const handleShippingChange = (e) =>{
         const { name, value }= e.target;
@@ -35,6 +44,14 @@ const Dashboard = ()=>{
           setShipping({ ...shipping, [name]: value});
         }
     }
+
+    const navigate = useNavigate();
+    useEffect(() => {
+      const isAuthenticated = document.cookie.split('; ').find(row => row.startsWith('username='));
+      if (!isAuthenticated) {
+          navigate('/');  // Redirects to the login page
+      }
+  }, [navigate]); 
 
     //Part
     const initialPart = {
@@ -143,20 +160,79 @@ const Dashboard = ()=>{
       // State to store the response from the server
   const [serverResponse, setServerResponse] = useState("");
 
+  useEffect(() => {
+    // Set up a listener for the 'progressUpdate' event from the server
+    socket.on("progressUpdate", (data) => {
+      setProgress(data.progress);
+      setServerResponse(data.message);
+      setMessages((prevMessages) => [data.message, ...prevMessages]);
+      // Handle the progress update as needed
+    });
+
+    // Cleanup the socket listener on component unmount
+    return () => {
+      socket.off("progressUpdate");
+    };
+  }, []);
+
+  const handleElectroluxAspRevise = async () => {
+    try {
+
+      const res = handleCheckDuplicate();
+
+      if(res){
+        alert("Duplicate parts");
+      } else {
+      // Prepare the data to send to the server
+      const dataToSend = {
+        parts,
+        shipping,
+      };
+
+        // Send a POST request to the server
+      const response = await fetch("http://10.100.111.10:3010/resviseASPElectrolux", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dataToSend),
+      });
+
+      // Check if the response is successful (you can modify the condition)
+      if (response.status === 200) {
+        const responseData = await response.json();
+        // Handle the response data as needed
+        setServerResponse(responseData.message);
+      } else {
+        // Handle error responses
+        setServerResponse("Error: Failed to submit data to the server");
+      }
+      }
+      
+    } catch (error) {
+      // Handle any network or other errors
+      console.error("Error:", error);
+      setServerResponse("Error: Something went wrong");
+    }
+  };
+
+
   const handleElectroluxAspSubmit = async () => {
     try {
+
+      const res = handleCheckDuplicate();
+
+      if(res){
+        alert("Duplicate parts");
+      } else {
       // Prepare the data to send to the server
       const dataToSend = {
         parts,
         shipping,
       };
 
-      if(parts[0].customized.length === 0){
-        alert("Repack before submitting.");
-      } else{
-
         // Send a POST request to the server
-      const response = await fetch("http://localhost:3010/buildASPElectrolux", {
+      const response = await fetch("http://10.100.111.10:3010/buildASPElectrolux", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -183,47 +259,59 @@ const Dashboard = ()=>{
     }
   };
 
-  // Function to handle the submit button click
   const handleSubmit = async () => {
+
     try {
-      // Prepare the data to send to the server
+      const res = handleCheckDuplicate();
+
+      if(res){
+        alert("Duplicate parts");
+      } else if(parts[0].customized.length === 0){
+        alert("Repack before submitting.");
+      } else {
+        setModalShow(true);
+     
       const dataToSend = {
         parts,
         shipping,
-        cookies: document.cookie, // Replace with your actual cookie data
+        cookies: document.cookie,
       };
 
-      if(parts[0].customized.length === 0){
-        alert("Repack before submitting.");
-      } else{
+        const response = await fetch("http://10.100.111.10:3010/buildASN", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "socketId": socketId,
+          },
+          body: JSON.stringify(dataToSend),
+        });
 
-        // Send a POST request to the server
-      const response = await fetch("http://localhost:3010/buildASN", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(dataToSend),
-      });
-
-      // Check if the response is successful (you can modify the condition)
-      if (response.status === 200) {
-        const responseData = await response.json();
-        // Handle the response data as needed
-        setServerResponse(responseData.message);
-      } else {
-        // Handle error responses
-        setServerResponse("Error: Failed to submit data to the server");
+        if (response.status === 200) {
+          const responseData = await response.json();
+          console.log(responseData);
+          setServerResponse(responseData.message.message);
+        } else {
+          setServerResponse("Error: Failed to submit data to the server");
+        }
       }
-      }
-
+      
       
     } catch (error) {
-      // Handle any network or other errors
       console.error("Error:", error);
       setServerResponse("Error: Something went wrong");
     }
   };
+  
+
+  function getFormattedToday() {
+    const today = new Date();
+    const month = (today.getMonth() + 1).toString().padStart(2, '0');
+    const day = today.getDate().toString().padStart(2, '0');
+    const year = today.getFullYear().toString();
+  
+    return `${month}/${day}/${year.slice(2)}`;
+  }
+  
 
   //get Parts
   const handleGetParts = async () => {
@@ -282,18 +370,36 @@ const Dashboard = ()=>{
       ...part,
       isDuplicate: duplicatePartNos.has(part.partNo),
     }));
+
+    if (duplicatePartNos.size > 0) {
+      // Duplicates found
+      setIsDuplicates(true);
+    } else {
+      // No duplicates found
+      setIsDuplicates(false);
+    }
   
     // Update the state with the new information
     setParts(updatedParts);
+
+    if (duplicatePartNos.size > 0) {
+      // Duplicates found
+      return true;
+    }  else {
+      return false
+    }
   };
   
 
     return(
         <div>
+           <div className="m-4 d-flex flex-row-reverse"><LoginComponent /></div>
             <ShippingForm 
             shipping ={shipping}
             handleChange ={handleShippingChange}
             handleGetParts={handleGetParts}
+            
+            today={getFormattedToday()}
             />
             <PartForm
             handleInputChange={handleInputChange}
@@ -304,13 +410,25 @@ const Dashboard = ()=>{
             handleEditPart={handleEditPart}
             handleCheckTotal={handleCheckTotal}
             handleRepack={handleRepack}
-            handleCheckDuplicate={handleCheckDuplicate}
+            isDuplicates={isDuplicates}
             />
+          {shipping.Customer === '9675' && shipping.ShippingDate !== getFormattedToday() || shipping.Customer === '9676' && shipping.ShippingDate !== getFormattedToday() || shipping.Customer === '10105' && shipping.ShippingDate !== getFormattedToday() || shipping.Customer === '10053' &&
+  shipping.ShippingDate !== getFormattedToday() ?<button onClick={handleElectroluxAspSubmit} className="submit" disabled={!isPartsClicked}>Submit ASP Electrolux</button>:shipping.Customer === '9675' || shipping.Customer === '9676' || shipping.Customer === '10105' || shipping.Customer === '10053'?
+  <button onClick={handleElectroluxAspRevise} className="submit" disabled={!isPartsClicked}>Revise ASP Electrolux</button>: <button onClick={handleSubmit} className="submit" disabled={!isPartsClicked}>Submit</button>}
+          
+          
+          <div className="m-2">
+            {serverResponse && <p>Server Response: {serverResponse}</p>}
+          </div>
 
-          <button onClick={handleSubmit} className="submit" disabled={!isPartsClicked}>Submit</button>
-          <button onClick={handleElectroluxAspSubmit} className="submit" disabled={!isPartsClicked}>Submit ASP Electrolux</button>
-
-          {serverResponse && <p>Server Response: {serverResponse}</p>}
+      <ProgressCenteredModal 
+        show={modalShow}
+        onHide={() => setModalShow(false)}
+        progress={progress}
+        serverResponse={serverResponse}
+        messages = {messages}
+      />
+          
           {/* {progress && <p>Progress: {progress}</p> }
           {message && <p>message: {message}</p>} */}
         </div>

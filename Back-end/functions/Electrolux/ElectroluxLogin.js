@@ -20,7 +20,8 @@ const loginElextrolux = async (page, username, password, sendUpdateToClients ) =
     await page.click('#next');
     // Return a promise or data indicating the login status if necessary.
 
-    await page.waitForNavigation({ waitUntil: 'networkidle2' });
+    await page.waitForNavigation({ waitUntil: 'networkidle0' });
+    await page.waitForTimeout(5000);
     await page.waitForSelector('#parent_subitem_3');
     await page.click('#parent_subitem_3');
 };

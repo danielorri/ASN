@@ -20,10 +20,18 @@ const pickPartsElectrolux = async (page, parts) => {
       const matchingPart = parts.find(part => part.partNo === partNumber);
   
       if (matchingPart) {
-        // Extract and fill the quantity
         const quantityInput = await row.$('.mat-column-totalQuantity input');
+        // Extract and fill the quantity
+        await quantityInput.click({ clickCount: 3 }); // Select all
+        await quantityInput.press('Backspace');
         await quantityInput.type(`${matchingPart.quantity}`, { delay: 100 });
         console.log(`Typed quantity ${matchingPart.quantity}`);
+      } else{
+        // Extract and fill the quantity
+        const quantityInput = await row.$('.mat-column-totalQuantity input');
+        await quantityInput.click({ clickCount: 3 }); // Select all
+        await quantityInput.press('Backspace');
+        await quantityInput.type(`0`, { delay: 100 });
       }
     }
 

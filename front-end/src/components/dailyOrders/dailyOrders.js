@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchDailyOrders } from '../../app/features/orders/dailyOrdersAsyncthunk';
+import { fetchDailyOrders, updateCsvData } from '../../app/features/orders/dailyOrdersAsyncthunk';
 import AlwaysOpenAcordeon from './dailyAcordeon';
+import LoginComponent from '../LoginComponents/LonginComponent';
 
 const DailyOrders = () => {
   const dispatch = useDispatch();
@@ -11,6 +12,24 @@ const DailyOrders = () => {
 
   const [selectedDate, setSelectedDate] = useState(getTodayDate());
   const [groupedOrders, setGroupedOrders] = useState({});
+  const [isReadOnly, setIsReadOnly] =useState(true);
+  const [soLookup, setSoLookup] = useState('');
+  const [searchResult, setSearchResult] = useState(null);
+
+  useEffect(() => {
+    const cookies = document.cookie;
+    const cookiesArray =cookies.split("; ");
+    const cookiesStored = [];
+    for(const cookie of cookiesArray){
+        const [cookieName, cookieValue] = cookie.split("=");
+        cookiesStored.push(cookieName);
+        cookiesStored.push(cookieValue);
+    }
+    if(cookiesStored.includes("username") && cookiesStored.includes("password") ){
+        setIsReadOnly(false);
+    }
+
+}, [])
 
  
     // Update groupedOrders when orders change
@@ -41,6 +60,35 @@ const DailyOrders = () => {
     const month = String(today.getMonth() + 1).padStart(2, '0');
     const day = String(today.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
+  }
+
+  //handle SO# lookup
+  const handleSearch = () => {
+    let foundItems = null;
+    let parentKey = null;
+    Object.keys(groupedOrders).forEach(key => {
+        groupedOrders[key].forEach(item => {
+            if (item.DocNum === soLookup) {
+                foundItems = groupedOrders[key]; // Get all items under the parent key
+                parentKey = key; // Save the parent key
+            }
+        });
+    });
+    if(foundItems){
+      setSearchResult({ [parentKey]: foundItems });
+    } else {
+      setSearchResult("SO# number not found please verify snd try again."); // Maintain the structure
+    }
+};
+
+const handleClearSearch = () =>{
+  setSoLookup('');
+  setSearchResult(null)
+}
+
+
+  const handleSoChange = (event) =>{
+    setSoLookup(event.target.value)
   }
 
   // Handle date change
@@ -84,7 +132,11 @@ const DailyOrders = () => {
     });
   };
   
-  
+  const handleUpdateCsv = () => {
+    // Ungroup groupedOrders and dispatch update
+    const ungroupedOrders = Object.values(groupedOrders).flat();
+    dispatch(updateCsvData(ungroupedOrders));
+  };
   
 
   // Render loading state
@@ -101,10 +153,23 @@ const DailyOrders = () => {
   return (
     <div>
         <div className='d-flex justify-content-around'>
+        <div className="m-4 d-flex flex-row-reverse"><LoginComponent /></div>
             <h1 className='text-center m-3'>Daily Orders</h1>
-
+            
             {/* Date Picker */}
             <div className="text-center mb-3">
+            {isReadOnly?
+            <div className='d-inline'>
+               <label htmlFor="soLookup" className='me-2 fw-bold'>SO#: </label>
+            <input
+                id="soLookup"
+                value={soLookup}
+                onChange={handleSoChange}
+            />
+            <button onClick={handleSearch} className='btn btn-primary ms-2'> Search</button>
+            <button onClick={handleClearSearch} className='btn btn-danger ms-2'>Clear</button>
+            </div>: <div></div>}
+            <button onClick={handleUpdateCsv} className={isReadOnly? "m-5":"btn btn-primary m-5"} disabled={isReadOnly}>Save</button>
             <label htmlFor="datePicker" className='me-2 fw-bold'>Date: </label>
             <input
                 type="date"
@@ -112,10 +177,26 @@ const DailyOrders = () => {
                 value={selectedDate}
                 onChange={handleDateChange}
             />
+           
             </div>
         </div>
+        {searchResult === "SO# number not found please verify snd try again."?<h3 className='m-5'>SO# not found, try another date or please verify and try again.</h3>:searchResult && (
+        <div>
+        <h3 className='m-5'>Search results:</h3>
+        <div>
+          {Object.keys(searchResult).map((groupKey) => {
+                return (
+                    <div key={groupKey} style={{ width: '90%', margin: 'auto' }}>
+                        <AlwaysOpenAcordeon gkey={groupKey} handleCarrierChange={handleCarrierChange} onEditField={handleEditField} groupedOrders={searchResult[groupKey]} />
+                    </div>
+                );
+            })}
+        </div>
+        </div>
+      )}
 
-      {groupedOrders && (
+
+      {searchResult === "SO# number not found please verify snd try again."?<div></div>:!searchResult && groupedOrders && (
         <div>
           {Object.keys(groupedOrders).map((groupKey) => {
                 return (

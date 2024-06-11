@@ -1,7 +1,10 @@
-const enterQuantity = async(page, parts) =>{
+const { getIo } = require("../socketManager");
+
+
+const enterQuantity = async(page, parts, socketId) =>{
   try {
     await page.waitForNavigation({ waitUntil: 'networkidle0' });
-
+    const io = getIo();
     let arri = 0;
     let nextPageButtonExists = true;
 
@@ -18,7 +21,7 @@ const enterQuantity = async(page, parts) =>{
         const value = await element.evaluate((el) => el.value.trim());
         // Check if the value is "2,000.000" and change it to "10,000"
         if (positiveNumberRegex.test(value)) {
-          console.log(`${parts[arri].partNo}: ${parts[arri].quantity}`);
+          io.to(socketId).emit('progressUpdate', { message: `${parts[arri].partNo}: ${parts[arri].quantity}`, progress: 75 });
           await element.click({ clickCount: 3 }); // Triple-click to select all text
           await element.press('Backspace'); // Clear the selected text
           await page.waitForTimeout(100); // Optional delay if needed

@@ -1,11 +1,16 @@
-const fillForm = async(page, shipping) =>{
+const { getIo } = require("../../socketManager");
+
+
+const fillForm = async(page, shipping, socketId) =>{
      // Assuming you have already navigated to the target page in your Puppeteer script
+   const io = getIo();
    const maxRetries = 3;
    let retries = 0;
    let isClicked = false;
  
    while (retries < maxRetries && !isClicked) {
      try {
+      await page.waitForNavigation({ waitUntil: 'domcontentloaded' }); // Wait for navigation
        // Wait for the input fields to appear
         await page.waitForSelector('#_4t8sed');
         await page.waitForSelector('#DF_7ldr3');
@@ -13,7 +18,7 @@ const fillForm = async(page, shipping) =>{
        // Element clicked and navigation completed successfully
        isClicked= true;
      } catch (error) {
-       console.error(`Attempt ${retries + 1}: Element not found or could not be clicked. Error: ${error.message}`);
+      io.to(socketId).emit('progressUpdate', { message: 'Element not found or could not be clicked.', progress: 7 });
        retries++;
  
        // You can add a page reload here if needed
@@ -53,13 +58,13 @@ const fillForm = async(page, shipping) =>{
         if (optionText.includes(carrierNameLower)) {
         await option.click();
         optionClicked = true;
-        console.log(`Selected carrier: ${shipping.CarrierName}`);
+        io.to(socketId).emit('progressUpdate', { message: `Selected carrier: ${shipping.CarrierName}`, progress: 8 });
         break; // Exit the loop once a matching option is found and clicked
         }
     }
 
     if (!optionClicked) {
-        console.error(`Carrier option containing '${shipping.CarrierName}' (case-insensitive) not found`);
+      io.to(socketId).emit('progressUpdate', { message: `Carrier option containing '${shipping.CarrierName}' (case-insensitive) not found`, progress: 8 });
     }
     await page.waitForSelector('input#_1f8mrd');
     // Type the shipping.TrackingNo into the input field

@@ -7,7 +7,7 @@ const PartForm = (props) => {
     <div className="Form partsForm">
       <h2>Part Details</h2>
       <button onClick={props.handleRepack}>Repack All</button>
-      <table>
+      <table style={{ backgroundColor: props.isDuplicates? 'orange' : 'inherit' }}>
         <thead>
           <tr>
             <th>Part No.</th>
@@ -81,7 +81,6 @@ const PartForm = (props) => {
           ))}
         </tbody>
       </table>
-      <button onClick={props.handleCheckDuplicate}>Check for Duplicates</button>
     </div>
   );
 };

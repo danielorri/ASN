@@ -16,7 +16,7 @@ function TableDaily(props) {
         </tr>
       </thead>
       <tbody>
-      {props.groupedOrders.map((order, index) => (
+      {props.groupedOrders.map((order, index) =>(
         <tr key={order.DocNum}>
             <td>{order.DocNum}</td>
             <td>
@@ -41,6 +41,7 @@ function TableDaily(props) {
             />
             </td>
             <td>{order.PART}</td>
+            <td>{order['Picklist Status']? order['Picklist Status']: "Not Allocated"}</td>
             <td>{order.U_SIF_ShipInst1}</td>
             <td>{order.U_SIF_ShipInst2}</td>
         </tr>

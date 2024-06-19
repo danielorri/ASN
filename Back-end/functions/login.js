@@ -7,7 +7,7 @@ const login = async (page, username, password ) => {
     await page.waitForSelector('#_s0cve');
     await page.click('#_s0cve');
 
-    await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
+    await page.waitForNavigation({ waitUntil: 'networkidle0'  });
 
     // Wait for the Password input field to load
     await page.waitForSelector('#Password');

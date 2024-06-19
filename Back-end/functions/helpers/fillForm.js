@@ -10,11 +10,12 @@ const fillForm = async(page, shipping, socketId) =>{
  
    while (retries < maxRetries && !isClicked) {
      try {
-      await page.waitForNavigation({ waitUntil: 'domcontentloaded' }); // Wait for navigation
+      await page.waitForNavigation({ waitUntil: 'networkidle0'  }); // Wait for navigation
        // Wait for the input fields to appear
         await page.waitForSelector('#_4t8sed');
         await page.waitForSelector('#DF_7ldr3');
         await page.waitForSelector('#DF_ptnsub');
+        await page.waitForSelector('div#__fxv4c');
        // Element clicked and navigation completed successfully
        isClicked= true;
      } catch (error) {
@@ -22,7 +23,7 @@ const fillForm = async(page, shipping, socketId) =>{
        retries++;
  
        // You can add a page reload here if needed
-       await page.reload({ waitUntil: 'domcontentloaded' });
+       await page.reload({ waitUntil: 'networkidle0' });
      }
    }
     // Type the PackingSLipID into the first input field
@@ -34,7 +35,6 @@ const fillForm = async(page, shipping, socketId) =>{
     // Type the shipping.DeliveryDate into the third input field
     await page.type('#DF_ptnsub', shipping.DeliveryDate);
 
-    await page.waitForSelector('div#__fxv4c');
 
     // Get the carrier dropdown element
     const carrierDropdown = await page.$('div#__fxv4c');
